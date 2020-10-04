@@ -1,0 +1,83 @@
+GET http://localhost:3000/person
+
+###
+
+GET http://localhost:3000/person/artName/ffffffffffffffssssssss
+
+
+###
+
+GET http://localhost:3000/person/id/5ed3bc2a7ba66d5138b9a4b7
+
+###
+
+POST http://localhost:3000/person/create
+Content-Type: application/json
+
+{
+    "artName": "4jgreag65"
+}
+
+###
+
+DELETE http://localhost:3000/person/5edf8e316934b84a84a42731
+
+
+###
+
+PATCH http://localhost:3000/person/5ed3b71da0a23050544621d8
+Content-Type: application/json
+
+{
+    "artName": "4jgreag65",
+    "age": "25",
+    "gender": "male",
+    "musicGenre": "Rock",
+    "songList": "jfjfjsleifjscscsclsiefjs"
+}
+
+
+
+
+
+
+
+
+###
+
+//login test part:
+//get all data
+GET http://localhost:3000/user/
+
+###
+
+POST http://localhost:3000/user/regist
+Content-Type: application/json
+
+{
+    "password": "test",
+    "email": "aefasef",
+    "personID": "afwefasfdsfefsaf"
+}
+
+
+###
+//login
+POST http://localhost:3000/user/login
+Content-Type: application/json
+
+{
+    "password": "12345678910",
+    "username": "254443713@qq.com"
+}
+
+
+###
+POST http://localhost:3000/user/google
+Content-Type: application/json
+
+{
+    "username":"test2",
+    "email":"req.body.email",
+    "uid":"sefasegdafgsefasef"
+}
