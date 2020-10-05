@@ -15,12 +15,18 @@ POST http://localhost:3000/person/create
 Content-Type: application/json
 
 {
-    "artName": "4jgreag65"
+    "AnlageName": "testAnlageA",
+    "ControllerGroup": {
+        "Id": 1,
+        "System": {
+            "Modell": "Modell_A"
+        }
+    }
 }
 
 ###
 
-DELETE http://localhost:3000/person/5edf8e316934b84a84a42731
+DELETE http://localhost:3000/person/5f79b501d1fef62cfc76c9c4
 
 
 ###

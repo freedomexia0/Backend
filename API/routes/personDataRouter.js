@@ -29,11 +29,9 @@ router.post('/create', async(req,res) => {
     let findName
     
     const Data = new personData({
-        artName: req.body.artName,
-        age: req.body.age,
-        gender: req.body.gender,
-        musicGenre: req.body.musicGenre,
-        songList: req.body.songList
+        AnlageName: req.body.AnlageName,
+        ControllerGroup: req.body.ControllerGroup
+
     })
     try {
         findName = await personData.findOne({artName: Data.artName})
