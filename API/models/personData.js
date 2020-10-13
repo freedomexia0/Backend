@@ -3,15 +3,18 @@ const mongoose = require('mongoose')
 const personDataSchema = new mongoose.Schema({
 
     AnlageName:{
-        type: String,
-        required: true,
+        type: String
     },
-    ControllerGroup:{
-        type: Object,
-        Controller:{
-            Id:{
-                type:Number
-            },
+
+    Id:{
+
+        type:Number
+        
+
+    },
+    Controller:{
+            type: Object,
+
 
             System:{
                 type:Object,
@@ -63,9 +66,9 @@ const personDataSchema = new mongoose.Schema({
             }
 
         }
-    },
+    ,
     Graphiken:{
-        type: String,
+        type: String
     },
     Alarme:{
         type: String

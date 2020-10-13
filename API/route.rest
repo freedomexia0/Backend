@@ -1,13 +1,16 @@
 GET http://localhost:3000/person
 
 ###
+GET http://localhost:3000/alarm
+
+###
 
 GET http://localhost:3000/person/artName/ffffffffffffffssssssss
 
 
 ###
 
-GET http://localhost:3000/person/id/5ed3bc2a7ba66d5138b9a4b7
+GET http://localhost:3000/alarm/id/5f85e2eb88bd8e33903622ef
 
 ###
 
@@ -16,12 +19,26 @@ Content-Type: application/json
 
 {
     "AnlageName": "testAnlageA",
-    "ControllerGroup": {
-        "Id": 1,
-        "System": {
-            "Modell": "Modell_A"
+    "Id": 1,
+        "Controller":{      
+            "System": {
+                "Modell": "Modell_A"
+            }
         }
-    }
+
+}
+###
+
+POST http://localhost:3000/alarm/create
+Content-Type: application/json
+
+{
+    "Id": "5f85957ff7cac51a943e92e4",
+    "Alarmlevel": 10,
+    "AlarmId": "AIN 1",
+    "AlarmTime": "9:10 10-13-2020",
+    "Alarmmessage": "This is a test alarm B!",
+    "NormalizationTime": "9:15 10-13-2020"
 }
 
 ###
@@ -31,16 +48,6 @@ DELETE http://localhost:3000/person/5f79b501d1fef62cfc76c9c4
 
 ###
 
-PATCH http://localhost:3000/person/5ed3b71da0a23050544621d8
-Content-Type: application/json
-
-{
-    "artName": "4jgreag65",
-    "age": "25",
-    "gender": "male",
-    "musicGenre": "Rock",
-    "songList": "jfjfjsleifjscscsclsiefjs"
-}
 
 
 

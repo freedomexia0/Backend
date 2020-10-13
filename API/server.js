@@ -16,8 +16,10 @@ app.use(cors())
 
 const personDataRouter = require('./routes/personDataRouter')
 const user = require('./routes/user')
+const alarm = require('./routes/alarmData')
 app.use('/person',personDataRouter)
 app.use('/user',user)
+app.use('/alarm',alarm)
 
 
 app.listen(3000, () => console.log('Server Started'))
