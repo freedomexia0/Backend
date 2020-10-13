@@ -20,7 +20,7 @@ router.get('/id/:id',getData,(req,res) => {
 })
 
 //get one 
-router.get('/artName/:artName',getNameData,(req,res) => {
+router.get('/userName/:userName',getNameData,(req,res) => {
     res.json(res.nameData)    
 })
 
@@ -36,6 +36,28 @@ router.post('/create', async(req,res) => {
     })
     try {
         findName = await personData.findOne({Id: Data.Id})
+        if(findName==null){
+            const newData = await Data.save()
+            res.status(201).json(newData)
+        }else
+        {
+            res.json({message:"This Controller already exist!"})
+        }
+
+    } catch (err) {
+        res.status(400)
+    }
+})
+
+//regist one
+router.post('/regist', async(req,res) => {
+    let findName
+    
+    const Data = new personData({
+        userName: req.body.userName,
+    })
+    try {
+        findName = await personData.findOne({userName: Data.userName})
         if(findName==null){
             const newData = await Data.save()
             res.status(201).json(newData)
@@ -114,7 +136,7 @@ async function getNameData(req, res, next){
     console.log(req.params.artName)
     let nameData
     try {
-        nameData = await personData.findOne({artName: req.params.artName})
+        nameData = await personData.findOne({userName: req.params.userName})
             if(nameData == null){
                 return res.status(404).json({message: 'Cannot find data!'})
             }

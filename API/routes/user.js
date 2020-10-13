@@ -36,7 +36,7 @@ router.post('/regist', async (req, res) => {
 
 //test login
 router.post('/login', async (req, res) =>{
-    const userID = await personData.findOne({artName: req.body.username})   
+    const userID = await personData.findOne({userName: req.body.username})   
     if(userID == null){
         return res.status(400).send('Cannot find user')
     }else{

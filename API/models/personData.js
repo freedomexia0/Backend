@@ -67,7 +67,13 @@ const personDataSchema = new mongoose.Schema({
 
         }
     ,
-    Graphiken:{
+    userName:{
+        type: String
+    },
+    age:{
+        type: String
+    },
+    email:{
         type: String
     },
     Alarme:{

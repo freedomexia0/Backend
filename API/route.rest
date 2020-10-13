@@ -60,7 +60,7 @@ DELETE http://localhost:3000/person/5f79b501d1fef62cfc76c9c4
 
 //login test part:
 //get all data
-GET http://localhost:3000/user/
+GET http://localhost:3000/person/userName/254443713@qq.com
 
 ###
 

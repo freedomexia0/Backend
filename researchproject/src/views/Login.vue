@@ -78,7 +78,7 @@ export default {
       }
 
       axios
-        .get("http://localhost:3000/person/artName/" + username)
+        .get("http://localhost:3000/person/userName/" + username)
         .then(res => {
           if (res.data.message == null) {
             axios

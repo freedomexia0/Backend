@@ -36,10 +36,10 @@
           />
         </div>
 
-        <h2>Music Genre</h2>
+        <h2>Alarm Id</h2>
         <div class="border">
           <input
-            id="musicGenre"
+            id="id"
             type="text"
             class="text-input text-input--underbar"
             placeholder="********"
@@ -47,16 +47,45 @@
           />
         </div>
 
-        <h2>Song</h2>
+        <h2>Alarm Level</h2>
         <div class="border">
           <input
-            id="song"
+            id="level"
             type="text"
             class="text-input text-input--underbar"
             placeholder="********"
             value
           />
         </div>
+
+
+        <h2>Alarm Time</h2>
+        <div class="border">
+          <input
+            id="alarm"
+            type="text"
+            class="text-input text-input--underbar"
+            placeholder="********"
+            value
+          />
+        </div>
+
+        <h2>Alarm Normalization Time</h2>
+        <div class="border">
+          <input
+            id="normal"
+            type="text"
+            class="text-input text-input--underbar"
+            placeholder="********"
+            value
+          />
+        </div>
+
+
+
+
+
+
       </div>
 
       <button class="button" v-on:click="save()">Save</button>
@@ -71,50 +100,56 @@ import axios from "axios";
 export default {
   name: "User",
   components: {
-    UserHeader
+    UserHeader,
   },
   computed: {
-    ...mapGetters(["UserID"])
+    ...mapGetters(["UserID"]),
   },
   created() {
     let personID = this.$store.getters.UserID;
+    axios.get("http://localhost:3000/alarm/id/5f85e2eb88bd8e33903622ef").then((res) => {
+      console.log(res);
+      if (res.data.Id != null) {
+        document.getElementById("id").placeholder = res.data.Id;
+      }
+      if (res.data.Alarmlevel != null) {
+        document.getElementById("level").placeholder = res.data.Alarmlevel;
+      }
+      if (res.data.AlarmTime != null) {
+        document.getElementById("alarm").placeholder = res.data.AlarmTime;
+      }
+      if (res.data.NormalizationTime != null) {
+        document.getElementById("normal").placeholder = res.data.NormalizationTime;
+      }
+    });
     console.log(personID);
     if (personID != "default") {
-      axios.get("http://localhost:3000/person/id/" + personID).then(res => {
-        console.log(res);
-        if (res.data.artName != null) {
-          document.getElementById("username").placeholder = res.data.artName;
-        }
-        if (res.data.age != null) {
-          document.getElementById("age").placeholder = res.data.age;
-        }
-        if (res.data.email != null) {
-          document.getElementById("email").placeholder = res.data.email;
-        }
-        if (res.data.songList != null) {
-          document.getElementById("song").placeholder = res.data.songList;
-        }
-        if (res.data.musicGenre != null) {
-          document.getElementById("musicGenre").placeholder =
-            res.data.musicGenre;
-        }
-      });
+      axios
+        .get("http://localhost:3000/person/id/" + personID)
+        .then((res) => {
+          console.log(res);
+          if (res.data.userName != null) {
+            document.getElementById("username").placeholder = res.data.userName;
+          }
+          if (res.data.age != null) {
+            document.getElementById("age").placeholder = res.data.age;
+          }
+          if (res.data.email != null) {
+            document.getElementById("email").placeholder = res.data.email;
+          }
+        });
     } else {
       this.$router.replace({ name: "Login" });
     }
   },
   methods: {
-    save: async function() {
+    save: async function () {
       let profile = {};
       let new_age = document.getElementById("age").value;
       let new_email = document.getElementById("email").value;
-      let new_song = document.getElementById("song").value;
-      let new_genre = document.getElementById("musicGenre").value;
 
       let age = document.getElementById("age").placeholder;
       let email = document.getElementById("email").placeholder;
-      let song = document.getElementById("song").placeholder;
-      let genre = document.getElementById("musicGenre").placeholder;
 
       if (new_age != "" && age != new_age) {
         profile = { ...profile, age: new_age };
@@ -124,22 +159,14 @@ export default {
         profile = { ...profile, email: new_email };
       }
 
-      if (new_song != "" && song != new_song) {
-        profile = { ...profile, songList: new_song };
-      }
-
-      if (new_genre != "" && genre != new_genre) {
-        profile = { ...profile, musicGenre: new_genre };
-      }
-      
       console.log(profile);
       axios.patch(
         "http://localhost:3000/person/" + this.$store.getters.UserID,
         profile
       );
       location.reload();
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -190,19 +217,16 @@ body {
 }
 
 .text-container {
-width: 80%;
+  width: 80%;
 }
 
-@media only screen and (min-width:650px){
-
-.text-container {
-  margin-left: 25%;
-  width: 50%;
+@media only screen and (min-width: 650px) {
+  .text-container {
+    margin-left: 25%;
+    width: 50%;
+  }
+  .button {
+    width: calc(100% - 20em);
+  }
 }
-.button{
-   width: calc(100% - 20em);
-}
-
-}
-
 </style>
