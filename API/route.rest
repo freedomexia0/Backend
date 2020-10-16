@@ -10,7 +10,7 @@ GET http://localhost:3000/person/artName/ffffffffffffffssssssss
 
 ###
 
-GET http://localhost:3000/alarm/id/5f85e2eb88bd8e33903622ef
+GET http://localhost:3000/alarm/id/5f8968c052e7fb352c603af8
 
 ###
 
@@ -33,11 +33,16 @@ POST http://localhost:3000/alarm/create
 Content-Type: application/json
 
 {
-    "Id": "5f85957ff7cac51a943e92e4",
-    "Alarmlevel": 10,
-    "AlarmId": "AIN 1",
+    "userId": "5f85957ff7cac51a943e92e4",
+    "Alarmlevel": 0,
+    "AlarmDefinition": "test definition",
+    "AlarmTrigger":"M3",
+    "AlarmMax":2,
+    "AlarmMin":0,
+    "AlarmId": "3",
     "AlarmTime": "9:10 10-13-2020",
     "Alarmmessage": "This is a test alarm B!",
+    "NormalizationMessage":"Normal text test",
     "NormalizationTime": "9:15 10-13-2020"
 }
 
@@ -48,8 +53,11 @@ DELETE http://localhost:3000/person/5f79b501d1fef62cfc76c9c4
 
 ###
 
+GET http://localhost:3000/alarm//alarmId/1
 
+###
 
+DELETE  http://localhost:3000/alarm//alarmId/1
 
 
 

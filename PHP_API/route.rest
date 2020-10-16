@@ -1,0 +1,101 @@
+GET http://localhost:3000/person
+
+###
+GET http://localhost:3000/alarm
+
+###
+
+GET http://localhost:3000/person/artName/ffffffffffffffssssssss
+
+
+###
+
+GET http://localhost:3000/alarm/id/5f85e2eb88bd8e33903622ef
+
+###
+
+POST http://localhost:3000/person/create
+Content-Type: application/json
+
+{
+    "AnlageName": "testAnlageA",
+    "Id": 1,
+        "Controller":{      
+            "System": {
+                "Modell": "Modell_A"
+            }
+        }
+
+}
+###
+
+POST http://localhost:3000/alarm/create
+Content-Type: application/json
+
+{
+    "userId": "5f85957ff7cac51a943e92e4",
+    "Alarmlevel": 0,
+    "AlarmDefinition": "test definition",
+    "AlarmTrigger":"M3",
+    "AlarmMax":10,
+    "AlarmMax":0,
+    "AlarmId": "AIN 1",
+    "AlarmTime": "9:10 10-13-2020",
+    "Alarmmessage": "This is a test alarm B!",
+    "NormalizationMessage":"Normal text test",
+    "NormalizationTime": "9:15 10-13-2020"
+}
+
+###
+
+DELETE http://localhost:3000/person/5f79b501d1fef62cfc76c9c4
+
+
+###
+
+
+
+
+
+
+
+
+
+###
+
+//login test part:
+//get all data
+GET http://localhost:3000/person/userName/254443713@qq.com
+
+###
+
+POST http://localhost:3000/user/regist
+Content-Type: application/json
+
+{
+    "password": "test",
+    "email": "aefasef",
+    "personID": "afwefasfdsfefsaf"
+}
+
+
+###
+//login
+POST http://localhost:3000/user/login
+Content-Type: application/json
+
+{
+    "password": "12345678910",
+    "username": "254443713@qq.com"
+}
+
+
+###
+POST http://localhost:3000/user/google
+Content-Type: application/json
+
+{
+    "username":"test2",
+    "email":"req.body.email",
+    "uid":"sefasegdafgsefasef"
+}

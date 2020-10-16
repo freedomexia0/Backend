@@ -2,10 +2,22 @@ const mongoose = require('mongoose')
 
 const alarmDataSchema = new mongoose.Schema({
 
-    Id:{
+    userId:{
+        type:String
+    },
+    AlarmDefinition: {
+        type:String
+    },
+    AlarmTrigger:{
         type:String
     },
     Alarmlevel:{
+        type:Number
+    },
+    AlarmMax:{
+        type:Number
+    },
+    AlarmMin:{
         type:Number
     },
     AlarmId:{
@@ -14,7 +26,10 @@ const alarmDataSchema = new mongoose.Schema({
     AlarmTime:{
         type:String
     },
-    Alarmmessage:{
+    AlarmMessage:{
+        type:String
+    },
+    NormalizationMessage:{
         type:String
     },
     NormalizationTime:{
