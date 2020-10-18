@@ -88,7 +88,7 @@ export default {
               })
               .then(key => {
                 this.$store.commit("changeID", res.data._id);
-                this.$store.commit("changeName", res.data.artName);
+                this.$store.commit("changeName", res.data.userName);
                 
                 if(key.data.admin ==true){
                    this.$router.replace({ name: "Admin" });

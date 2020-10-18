@@ -76,8 +76,8 @@ const personDataSchema = new mongoose.Schema({
     email:{
         type: String
     },
-    Alarme:{
-        type: String
+    admin:{
+        type: Boolean
     }
 
 })

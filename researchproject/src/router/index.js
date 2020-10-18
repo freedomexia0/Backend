@@ -37,7 +37,7 @@ Vue.use(VueRouter)
   {
     path: '/admin',
     name: 'Admin',
-    component: () => import('../views/Admin.vue')
+    component: () => import('../views/adminUser.vue')
   }
 ]
 

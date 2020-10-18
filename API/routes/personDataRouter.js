@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const personData = require('../models/personData')
+const userPasswordData = require('../models/userPasswordData')
 
 //get all
 router.get('/',async (req, res) => {
@@ -55,6 +56,7 @@ router.post('/regist', async(req,res) => {
     
     const Data = new personData({
         userName: req.body.userName,
+        admin: req.body.admin
     })
     try {
         findName = await personData.findOne({userName: Data.userName})
@@ -63,7 +65,7 @@ router.post('/regist', async(req,res) => {
             res.status(201).json(newData)
         }else
         {
-            res.json({message:"This Controller already exist!"})
+            res.json({message:"This User already exist!"})
         }
 
     } catch (err) {
@@ -73,27 +75,19 @@ router.post('/regist', async(req,res) => {
 
 //updating one 
 router.patch('/:id',getData,async (req,res) => {
-    if(req.body.name != null){
-        res.Data.name = req.body.name
-    }
-    if(req.body.age != null){
-        res.Data.age = req.body.age
-    }
-    if(req.body.artName != null){
-        res.Data.artName = req.body.artName
-    }
+
     if(req.body.email != null){
         res.Data.email = req.body.email
     }
-    if(req.body.musicGenre != null){
-        res.Data.musicGenre = req.body.musicGenre
-    }
-    if(req.body.songList != null){
-        res.Data.songList = req.body.songList
+    if(req.body.admin != null){
+        res.Data.admin = req.body.admin
     }
 
     try {
         const updateData = await res.Data.save()
+        nameData = await userPasswordData.findOne({personID: req.params.id})
+        nameData.admin = req.body.admin
+        nameData.save()
         res.json(updateData)
     } catch (error) {
         res.status(400).json({message: error.message})
@@ -105,6 +99,11 @@ router.patch('/:id',getData,async (req,res) => {
 router.delete('/:id',getData,async (req,res) => {
     try {
         await res.Data.remove()
+
+        nameData = await userPasswordData.findOne({personID: req.params.id})
+        console.log(nameData)
+        nameData.remove()
+
         res.json({message:'Delete success'})
     } catch (err) {
         res.status(500).json({message: err.message})

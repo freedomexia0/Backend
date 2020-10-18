@@ -1,7 +1,7 @@
 <template>
   <div id="header">
     <h1>Research Project Test Webpage</h1>
-    <h2>Welcome to admin page!</h2>
+    <h2>Welcome!</h2>
     <h2 id="userName"> {{username}} </h2>
     
     <div  id="nav">

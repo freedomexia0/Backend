@@ -15,6 +15,48 @@ router.get('/', async (req,res)=>{
     }
 } )
 
+//get one by id
+router.get('/id/:personID',getData,(req,res) => {
+    res.json(res.nameData)
+    
+})
+
+
+async function getData(req, res, next){
+ 
+    let nameData
+    try {
+        nameData = await userPasswordData.findOne({personID: req.params.personID})
+        console.log(nameData)
+            if(nameData == null){
+                return res.status(404).json({message: 'Cannot find data!'})
+            }
+        
+    } catch (err) {
+        return res.status(500).json({message: err.message})
+    }
+
+    res.nameData = nameData
+    next()
+}
+
+
+
+
+//delete account
+router.delete('/:personID',getData,async (req,res) => {
+    try {
+        await res.nameData.remove()
+        res.json({message:'Delete success'})
+    } catch (err) {
+        res.status(500).json({message: err.message})
+    }
+    
+})
+
+
+
+
 
 //regist account
 router.post('/regist', async (req, res) => {
@@ -23,7 +65,7 @@ router.post('/regist', async (req, res) => {
             password: hashedPassword,
             email: req.body.email,
             personID: req.body.personID,
-            admin: false
+            admin: req.body.admin
         })
         //test hash
         const saveData = await passwordData.save()
@@ -62,6 +104,10 @@ router.post('/login', async (req, res) =>{
 
    
 })
+
+
+
+
 
 //google login
 router.post('/google', async (req,res) => {

@@ -69,7 +69,8 @@ export default {
 
       axios
         .post("http://localhost:3000/person/regist", {
-          userName: username
+          userName: username,
+          admin: false
         })
         .then(res => {
           if(res.data.message == null){

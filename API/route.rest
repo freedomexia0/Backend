@@ -5,7 +5,7 @@ GET http://localhost:3000/alarm
 
 ###
 
-GET http://localhost:3000/person/artName/ffffffffffffffssssssss
+GET http://localhost:3000/person/id/5f896a3452e7fb352c603afb
 
 
 ###
@@ -48,7 +48,17 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:3000/person/5f79b501d1fef62cfc76c9c4
+PATCH http://localhost:3000/person/5f8c730c7dc85e2a10bd4ca5
+Content-Type: application/json
+
+{
+    "admin": true
+}
+
+
+###
+
+DELETE http://localhost:3000/person/5f8c729b441212457072ac42
 
 
 ###
@@ -68,7 +78,16 @@ DELETE  http://localhost:3000/alarm//alarmId/1
 
 //login test part:
 //get all data
-GET http://localhost:3000/person/userName/254443713@qq.com
+GET http://localhost:3000/user
+
+###
+
+//login test part:
+GET http://localhost:3000/user/id/5f8c3e928e00d10e9021863f
+
+###
+//delete
+DELETE http://localhost:3000/user/5f8c3e928e00d10e9021863f
 
 ###
 
