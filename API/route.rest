@@ -4,6 +4,10 @@ GET http://localhost:3000/person
 GET http://localhost:3000/alarm
 
 ###
+GET http://localhost:3000/alarm/alarmlog
+
+
+###
 
 GET http://localhost:3000/person/id/5f896a3452e7fb352c603afb
 
@@ -12,38 +16,33 @@ GET http://localhost:3000/person/id/5f896a3452e7fb352c603afb
 
 GET http://localhost:3000/alarm/id/5f8968c052e7fb352c603af8
 
-###
 
-POST http://localhost:3000/person/create
-Content-Type: application/json
-
-{
-    "AnlageName": "testAnlageA",
-    "Id": 1,
-        "Controller":{      
-            "System": {
-                "Modell": "Modell_A"
-            }
-        }
-
-}
 ###
 
 POST http://localhost:3000/alarm/create
 Content-Type: application/json
 
 {
-    "userId": "5f85957ff7cac51a943e92e4",
     "Alarmlevel": 0,
     "AlarmDefinition": "test definition",
     "AlarmTrigger":"M3",
     "AlarmMax":2,
     "AlarmMin":0,
-    "AlarmId": "3",
     "AlarmTime": "9:10 10-13-2020",
-    "Alarmmessage": "This is a test alarm B!",
+    "AlarmMessage": "This is a test alarm B!",
     "NormalizationMessage":"Normal text test",
     "NormalizationTime": "9:15 10-13-2020"
+}
+
+###
+PATCH http://localhost:3000/alarm/update/5
+Content-Type: application/json
+
+{
+    
+    "TriggerStatus": 1,
+    "Alarmlevel": 3
+
 }
 
 ###
@@ -63,11 +62,11 @@ DELETE http://localhost:3000/person/5f8c729b441212457072ac42
 
 ###
 
-GET http://localhost:3000/alarm//alarmId/1
+GET http://localhost:3000/alarm//alarmId/4
 
 ###
 
-DELETE  http://localhost:3000/alarm//alarmId/1
+DELETE  http://localhost:3000/alarm//alarmId/3
 
 
 

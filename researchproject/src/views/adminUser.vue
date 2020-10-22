@@ -1,5 +1,5 @@
 <template>
-  <v-ons-page>
+  <div>
     <div class="content">
       <UserHeader />
       <div class="text-container">
@@ -31,9 +31,8 @@
             v-bind:class="[isActive ? 'unHide' : 'Hide']"
             ref="personTable"
             selectable
-            :select-mode="selectMode"
             :items="person"
-            :fields="fields"
+            :fields="personFields"
             @row-selected="onRowSelectedPerson"
             responsive="sm"
           >
@@ -86,21 +85,45 @@
         </div>
 
         <div>
+          <h1>This is User view Table</h1>
           <b-table
             ref="selectableTable"
             selectable
-            :select-mode="selectMode"
             :items="items"
             :fields="fields"
             @row-selected="onRowSelected"
             responsive="sm"
+                  primary-key="AlarmId"
+      :tbody-transition-props="transProps"
           >
+            <template #cell(__)="{ rowSelected }">
+              <template v-if="rowSelected">
+                <span aria-hidden="true">&check;</span>
+                <span class="sr-only">Selected</span>
+              </template>
+              <template v-else>
+                <span aria-hidden="true">&nbsp;</span>
+                <span class="sr-only">Not selected</span>
+              </template>
+            </template>
           </b-table>
           <p>
             <b-button size="sm" @click="selectAllRows">Select all</b-button>
             <b-button size="sm" @click="clearSelected">Clear selected</b-button>
             <b-button size="sm" @click="deleteSelected">Delete</b-button>
+            <b-button size="sm" @click="ackAlarm">Acknowledge</b-button>
           </p>
+
+          <div>
+            <h1>This is Admin view Log Table</h1>
+              <b-table
+            :items="itemsLog"
+            :fields="fields"
+            responsive="sm"
+                  primary-key="AlarmId"
+      :tbody-transition-props="transProps"
+          > </b-table>
+          </div>
           <p>
             Selected Person Rows:<br />
             {{ selectedPerson }}
@@ -110,11 +133,39 @@
             {{ selected }}
           </p>
         </div>
+
+        <h3>Add new alarm</h3>
+
+        <div>
+          <div>
+            <b-form-select
+              v-model="selectedTrigger"
+              :options="optionsTrigger"
+              size="sm"
+              class="mt-3"
+            ></b-form-select>
+          </div>
+          <h2>Alarm message</h2>
+          <div class="border">
+            <input
+              id="alarm_message"
+              type="text"
+              class="text-input text-input--underbar"
+              placeholder="Enter alarm message"
+              value
+            />
+          </div>
+
+          <button class="button" v-on:click="create_alarm()">
+            Create alarm
+          </button>
+          <button class="button" v-on:click="cancel_alarm()">Back</button>
+        </div>
       </div>
 
       <button class="button" v-on:click="save()">Save</button>
     </div>
-  </v-ons-page>
+  </div>
 </template>
 
 <script>
@@ -128,11 +179,14 @@ export default {
       {
         AlarmId: null,
         AlarmTrigger: null,
-        NormalizationMessage: null,
+        AlarmMessage: null,
         AlarmTime: null,
+        AckUser: null,
+        Acknowledge: null,
+        TriggerStatus: null,
+        _rowVariant:null,
       },
     ];
-
     var defautePersonValue = [
       {
         User_Name: null,
@@ -141,15 +195,46 @@ export default {
         admin: null,
       },
     ];
-    var selected, selectMode, fields, selectedPerson;
+    var selected, selectedPerson;
     return {
+      transProps: {
+        // Transition name
+        name: "flip-list",
+      },
+      selectedLevel: null,
+      selectedMax: null,
+      selectedMin: null,
+      selectedTrigger: null,
       person: defautePersonValue,
       items: defauteValue,
+      itemsLog: defauteValue,
       selected,
+      personFields: ["personId", "User_Name", "E_mail", "admin"],
       selectedPerson,
-      selectMode,
-      fields,
+      fields: [
+        "__",
+        {key:"AlarmTime",sortable: true},
+        {key:"Acknowledge",sortable: true},
+        "AckUser",
+        {key: "AlarmId", sortable: true},
+        "AlarmTrigger",
+        "AlarmMessage",
+      ],
       isActive,
+      dateValue: "",
+      timeValue: "",
+      // options: [
+      //   { value: null, text: "Please select an Alarm level" },
+      //   { value: 1, text: "Alarm level: Activated" },
+      //   { value: 2, text: "Alarm level: Inactivated" },
+      //   { value: 3, text: "Alarm level: Maintain" },
+      // ],
+      optionsTrigger: [
+        { value: null, text: "Please select a Trigger" },
+        { value: "M3", text: "Trigger: M3" },
+        { value: "M4", text: "Trigger: M4" },
+        { value: "M5", text: "Trigger: M5" },
+      ],
     };
   },
   name: "User",
@@ -160,6 +245,7 @@ export default {
     ...mapGetters(["UserID"]),
   },
   created() {
+    this.AckKey = false;
     this.selected = [];
     this.selectedPerson = [];
     setInterval(this.timer, 5000);
@@ -182,6 +268,31 @@ export default {
     }
   },
   methods: {
+    create_alarm: async function () {
+      let newAlarm = {
+        Alarmlevel: null,
+        AlarmDefinition: "test",
+        AlarmTrigger: null,
+        AlarmMax: null,
+        AlarmMin: null,
+        AlarmTime: null,
+        AlarmMessage: null,
+      };
+
+      newAlarm.AlarmTrigger = this.selectedTrigger;
+      newAlarm.AlarmMessage = document.getElementById("alarm_message").value
+      if (
+        newAlarm.AlarmTrigger != null &&
+        newAlarm.AlarmMessage != "Enter alarm message"
+      ) {
+        axios
+          .post("http://localhost:3000/alarm/create", newAlarm)
+          .catch((err) => console.log(err));
+      } else {
+        alert("Please finish all options!");
+      }
+    },
+
     setAdmin: async function () {
       if (this.selectedPerson.length == 0) {
         alert("You didn't choose an User!");
@@ -224,8 +335,6 @@ export default {
           }
         }
       }
-
-
     },
 
     Sleep(milliseconds) {
@@ -311,6 +420,24 @@ export default {
         }
       }
     },
+    ackAlarm() {
+      if (this.selected.length == 0) {
+        alert("You didn't choose an Alarm!");
+      } else {
+        var result = confirm("Are you sure to confirm selected Alarm?");
+        if (result == true) {
+          for (let i = 0; i < this.selected.length; i++) {
+            let id = this.selected[i].AlarmId;
+            console.log(id);
+            axios
+              .patch("http://localhost:3000/alarm/update/" + id, {
+                AckUser: this.$store.getters.UserName,
+              })
+              .catch((err) => console.log(err));
+          }
+        }
+      }
+    },
     delUser() {
       if (this.selectedPerson.length == 0) {
         alert("You didn't choose an User!");
@@ -321,7 +448,6 @@ export default {
         if (result == true) {
           for (let i = 0; i < this.selectedPerson.length; i++) {
             let id = this.selectedPerson[i].personId;
-            console.log(id);
             axios
               .delete("http://localhost:3000/person/" + id)
               .catch((err) => console.log(err));
@@ -333,6 +459,7 @@ export default {
     timer() {
       this.getAlarm();
       this.getUser();
+      this.getLogAlarm();
     },
     getUser() {
       var personData = [
@@ -345,8 +472,6 @@ export default {
       ];
 
       axios.get("http://localhost:3000/person").then((res) => {
-        console.log(res.data);
-
         if (res.data.length > 1) {
           for (let i = 0; i < res.data.length; i++) {
             personData[i].User_Name = res.data[i].userName;
@@ -373,38 +498,173 @@ export default {
       });
     },
 
-    getAlarm() {
-      var alarmData = [
-        {
-          AlarmId: null,
-          AlarmTrigger: null,
-          NormalizationMessage: null,
-          AlarmTime: null,
-        },
-      ];
+    getAckKey() {
+      if (this.AckKey == true) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    getLogAlarm(){ 
+      var alarmData = [];
+
       axios.get("http://localhost:3000/alarm").then((res) => {
-        // console.log(res.data.length);
+        //console.log(res.data);
         if (res.data.length > 1) {
           for (let i = 0; i < res.data.length; i++) {
-            alarmData[i].AlarmTrigger = res.data[i].AlarmTrigger;
-            alarmData[i].AlarmId = res.data[i].AlarmId;
-            alarmData[i].NormalizationMessage =
-              res.data[i].NormalizationMessage;
-            alarmData[i].AlarmTime = res.data[i].AlarmTime;
-            if (i != res.data.length - 1) {
-              alarmData[i + 1] = {
-                AlarmId: null,
-                AlarmTrigger: null,
-                NormalizationMessage: null,
-                AlarmTime: null,
-              };
+            var alarmModel = {
+              AlarmId: null,
+              AlarmTrigger: null,
+              AlarmMessage: null,
+              AlarmTime: null,
+              AckUser: null,
+              Acknowledge: null,
+              TriggerStatus: null,
+              _rowVariant:null
+            };
+
+              alarmModel.AlarmTrigger = res.data[i].AlarmTrigger;
+              alarmModel.AlarmId = res.data[i].AlarmId;
+              alarmModel.AlarmMessage = res.data[i].AlarmMessage;
+              alarmModel.AlarmTime = res.data[i].AlarmTime;
+              if (res.data[i].AckUser != null) {
+                alarmModel.AckUser = res.data[i].AckUser;
+                alarmModel.Acknowledge = "confirmed";
+              }
+              if(res.data[i].Alarmlevel==1){
+                alarmModel._rowVariant = "success"
+              }
+               if(res.data[i].Alarmlevel==2){
+                alarmModel._rowVariant = "secondary"
+              }    
+              if(res.data[i].Alarmlevel==3){
+                alarmModel._rowVariant = "danger"
+              }              
+
+              alarmData.push(alarmModel);
+
+            
+          }
+        } 
+        else if (res.data.length == 1) {
+             var alarmModelB = {
+              AlarmId: null,
+              AlarmTrigger: null,
+              AlarmMessage: null,
+              AlarmTime: null,
+              AckUser: null,
+              Acknowledge: null,
+              TriggerStatus: null,
+              _rowVariant: null
+            };
+         
+
+            alarmModelB.AlarmTrigger = res.data[0].AlarmTrigger;
+            alarmModelB.AlarmId = res.data[0].AlarmId;
+            alarmModelB.AlarmMessage = res.data[0].AlarmMessage;
+            alarmModelB.AlarmTime = res.data[0].AlarmTime;
+             console.log(res.data)
+
+            if (res.data[0].AckUser != null) {
+              alarmModelB.AckUser = res.data[0].AckUser;
+             alarmModelB.Acknowledge = "confirmed";
+            }
+
+             if(res.data[0].Alarmlevel==1){
+                alarmModelB._rowVariant = "success"
+              }
+               if(res.data[0].Alarmlevel==2){
+                alarmModelB._rowVariant = "secondary"
+              }    
+              if(res.data[0].Alarmlevel==3){
+                alarmModelB._rowVariant = "danger"
+              }              
+          
+
+           alarmData.push(alarmModelB);
+        }
+
+        this.itemsLog = alarmData;
+      });
+    }
+,
+    getAlarm() {
+      var alarmData = [];
+
+      axios.get("http://localhost:3000/alarm").then((res) => {
+        //console.log(res.data);
+        if (res.data.length > 1) {
+          for (let i = 0; i < res.data.length; i++) {
+            var alarmModel = {
+              AlarmId: null,
+              AlarmTrigger: null,
+              AlarmMessage: null,
+              AlarmTime: null,
+              AckUser: null,
+              Acknowledge: null,
+              TriggerStatus: null,
+              _rowVariant:null
+            };
+            if (res.data[i].TriggerStatus == 1) {
+              alarmModel.AlarmTrigger = res.data[i].AlarmTrigger;
+              alarmModel.AlarmId = res.data[i].AlarmId;
+              alarmModel.AlarmMessage = res.data[i].AlarmMessage;
+              alarmModel.AlarmTime = res.data[i].AlarmTime;
+              if (res.data[i].AckUser != null) {
+                alarmModel.AckUser = res.data[i].AckUser;
+                alarmModel.Acknowledge = "confirmed";
+              }
+              if(res.data[i].Alarmlevel==1){
+                alarmModel._rowVariant = "success"
+              }
+               if(res.data[i].Alarmlevel==2){
+                alarmModel._rowVariant = "secondary"
+              }    
+              if(res.data[i].Alarmlevel==3){
+                alarmModel._rowVariant = "danger"
+              }              
+
+              alarmData.push(alarmModel);
+
             }
           }
-        } else if (res.data.length == 1) {
-          alarmData[0].AlarmTrigger = res.data[0].AlarmTrigger;
-          alarmData[0].AlarmId = res.data[0].AlarmId;
-          alarmData[0].NormalizationMessage = res.data[0].NormalizationMessage;
-          alarmData[0].AlarmTime = res.data[0].AlarmTime;
+        } 
+        else if (res.data.length == 1) {
+             var alarmModelB = {
+              AlarmId: null,
+              AlarmTrigger: null,
+              AlarmMessage: null,
+              AlarmTime: null,
+              AckUser: null,
+              Acknowledge: null,
+              TriggerStatus: null,
+              _rowVariant: null
+            };
+         
+          if (res.data[0].TriggerStatus == 1) {
+            alarmModelB.AlarmTrigger = res.data[0].AlarmTrigger;
+            alarmModelB.AlarmId = res.data[0].AlarmId;
+            alarmModelB.AlarmMessage = res.data[0].AlarmMessage;
+            alarmModelB.AlarmTime = res.data[0].AlarmTime;
+             console.log(res.data)
+
+            if (res.data[0].AckUser != null) {
+              alarmModelB.AckUser = res.data[0].AckUser;
+             alarmModelB.Acknowledge = "confirmed";
+            }
+
+             if(res.data[0].Alarmlevel==1){
+                alarmModelB._rowVariant = "success"
+              }
+               if(res.data[0].Alarmlevel==2){
+                alarmModelB._rowVariant = "secondary"
+              }    
+              if(res.data[0].Alarmlevel==3){
+                alarmModelB._rowVariant = "danger"
+              }              
+          }
+
+           alarmData.push(alarmModelB);
         }
 
         this.items = alarmData;
@@ -439,6 +699,11 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow: auto;
+}
+
+table#table-transition-example .flip-list-move {
+  transition: transform 1s;
 }
 
 .Hide {
@@ -491,6 +756,11 @@ body {
 }
 
 @media only screen and (min-width: 650px) {
+
+table#table-transition-example .flip-list-move {
+  transition: transform 1s;
+}
+
   .text-container {
     margin-left: 25%;
     width: 50%;

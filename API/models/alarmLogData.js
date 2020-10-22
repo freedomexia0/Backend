@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const alarmDataSchema = new mongoose.Schema({
+const alarmLogDataSchema = new mongoose.Schema({
 
     AlarmDefinition: {
         type:String
@@ -41,4 +41,4 @@ const alarmDataSchema = new mongoose.Schema({
 
 })
 
-module.exports = mongoose.model('alarmData',alarmDataSchema)
+module.exports = mongoose.model('alarmLogData',alarmLogDataSchema)
