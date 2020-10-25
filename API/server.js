@@ -4,6 +4,8 @@ const express = require('express')
 const app = express()
 const mongoose = require('mongoose')
 const cors = require('cors')
+const Get = require('./functions/getValue')
+var get = new Get()
 
 
 mongoose.connect(process.env.DATABASE_URL,{ useNewUrlParser: true,useUnifiedTopology: true})
@@ -17,9 +19,18 @@ app.use(cors())
 const personDataRouter = require('./routes/personDataRouter')
 const user = require('./routes/user')
 const alarm = require('./routes/alarmData')
+const getValue = require('./functions/getValue')
 app.use('/person',personDataRouter)
 app.use('/user',user)
 app.use('/alarm',alarm)
 
 
 app.listen(3000, () => console.log('Server Started'))
+
+setInterval(timer,5000);
+
+
+function timer(){
+  console.log("geting value from controller")
+  get.getValue();
+}

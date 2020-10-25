@@ -53,13 +53,18 @@ export default {
   },
   computed: {
     ...mapGetters(["UserID"]),
-    ...mapGetters(["UserName"])
+    ...mapGetters(["UserName"]),
+    ...mapGetters(["Authority"])
+
 
   },
+   created(){
+   },
 
   methods: {
     ...mapMutations(["changeID"]),
     ...mapMutations(["changeName"]),
+    ...mapMutations(["changeAuthority"]),
     login: async function() {
       let username = document.getElementById("username").value;
       let password = document.getElementById("password").value;
@@ -89,6 +94,8 @@ export default {
               .then(key => {
                 this.$store.commit("changeID", res.data._id);
                 this.$store.commit("changeName", res.data.userName);
+                this.$store.commit("changeAuthority", key.data.admin);
+
                 
                 if(key.data.admin ==true){
                    this.$router.replace({ name: "Admin" });
@@ -113,7 +120,7 @@ export default {
 
 <style lang='css'>
 body {
-  background-color: #292929;
+  background-color: #efeff4;
   width: 100%;
   height: 100%;
   margin: 0;

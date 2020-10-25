@@ -11,12 +11,14 @@ export default new Vuex.Store({
   state:{
     user:{
       personID:'default',
-      personName:'default'
+      personName:'default',
+      admin: 'test!!!!'
     }
   },
   getters:{
     UserID: (state) => state.user.personID,
-    UserName: (state) => state.user.personName
+    UserName: (state) => state.user.personName,
+    Authority: (state) => state.user.admin
   },
   mutations:{
     changeID (state,payload){
@@ -24,6 +26,9 @@ export default new Vuex.Store({
     },
     changeName(state,payload){
       state.user.personName = payload
+    },
+    changeAuthority(state,payload){
+      state.user.admin = payload
     }
   }
 })

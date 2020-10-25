@@ -1,7 +1,7 @@
 GET http://localhost:3000/person
 
 ###
-GET http://localhost:3000/alarm
+GET http://localhost:3000/alarm/alarmId/
 
 ###
 GET http://localhost:3000/alarm/alarmlog
@@ -28,23 +28,22 @@ Content-Type: application/json
     "AlarmTrigger":"M3",
     "AlarmMax":2,
     "AlarmMin":0,
-    "AlarmTime": "9:10 10-13-2020",
     "AlarmMessage": "This is a test alarm B!",
     "NormalizationMessage":"Normal text test",
-    "NormalizationTime": "9:15 10-13-2020"
+    "NormalizationTime": "9:15 10-13-2020",
+    "TriggerMode": 1
 }
 
 ###
-PATCH http://localhost:3000/alarm/update/5
+PATCH http://localhost:3000/alarm/update/6
 Content-Type: application/json
 
 {
-    
-    "TriggerStatus": 1,
-    "Alarmlevel": 3
+    "TriggerValue":3,
+    "TriggerStatus":0
 
 }
-
+// ""
 ###
 
 PATCH http://localhost:3000/person/5f8c730c7dc85e2a10bd4ca5
@@ -107,7 +106,7 @@ Content-Type: application/json
 
 {
     "password": "12345678910",
-    "username": "254443713@qq.com"
+    "username": "test2"
 }
 
 
@@ -120,3 +119,9 @@ Content-Type: application/json
     "email":"req.body.email",
     "uid":"sefasegdafgsefasef"
 }
+
+
+
+
+###
+GET  http://192.168.10.116/cgi-bin/read_sps.cgi?init

@@ -37,6 +37,12 @@ const alarmLogDataSchema = new mongoose.Schema({
     },
     TriggerStatus: {
         type:Number
+    },
+    TriggerMode: {
+        type:Number
+    },
+    TriggerValue: {
+        type:Number
     }
 
 })

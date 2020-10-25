@@ -78,6 +78,9 @@ const personDataSchema = new mongoose.Schema({
     },
     admin:{
         type: Boolean
+    },
+    authority:{
+        type: Number
     }
 
 })

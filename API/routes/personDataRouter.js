@@ -82,6 +82,9 @@ router.patch('/:id',getData,async (req,res) => {
     if(req.body.admin != null){
         res.Data.admin = req.body.admin
     }
+    if(req.body.authority != null){
+        res.Data.authority = req.body.authority
+    }
 
     try {
         const updateData = await res.Data.save()
