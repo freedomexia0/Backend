@@ -1,7 +1,7 @@
-GET http://localhost:3000/person
+GET http://49.235.1.205:3000/person
 
 ###
-GET http://localhost:3000/alarm/alarmId/
+GET http://49.235.1.205:3000/alarm/alarmId/1
 
 ###
 GET http://localhost:3000/alarm/alarmlog

@@ -342,7 +342,7 @@ export default {
 
     let personID = this.$store.getters.UserID;
     if (personID != "default") {
-      axios.get("http://localhost:3000/person/id/" + personID).then((res) => {
+      axios.get("http://49.235.1.205:3000/person/id/" + personID).then((res) => {
         if (res.data.userName != null) {
           document.getElementById("username").placeholder = res.data.userName;
         }
@@ -422,7 +422,7 @@ export default {
 
       if (!alertTrigger && !alertMode && !alertMessage) {
         axios
-          .post("http://localhost:3000/alarm/create", newAlarm)
+          .post("http://49.235.1.205:3000/alarm/create", newAlarm)
           .catch((err) => console.log(err));
       }
     },
@@ -451,7 +451,7 @@ export default {
                 let profile = { ...profile, admin: true };
 
                 //console.log(profile);
-                axios.patch("http://localhost:3000/person/" + id, profile);
+                axios.patch("http://49.235.1.205:3000/person/" + id, profile);
 
                 await this.Sleep(300);
               }
@@ -489,7 +489,7 @@ export default {
 
                 let profile = { ...profile, authority: authorityValue };
 
-                axios.patch("http://localhost:3000/person/" + id, profile);
+                axios.patch("http://49.235.1.205:3000/person/" + id, profile);
 
                 await this.Sleep(300);
               }
@@ -515,7 +515,7 @@ export default {
             let profile = { ...profile, admin: false };
 
             //console.log(profile);
-            axios.patch("http://localhost:3000/person/" + id, profile);
+            axios.patch("http://49.235.1.205:3000/person/" + id, profile);
 
             await this.Sleep(300);
           }
@@ -550,14 +550,14 @@ export default {
       }
 
       axios
-        .post("http://localhost:3000/person/regist", {
+        .post("http://49.235.1.205:3000/person/regist", {
           userName: username,
           admin: adminKey,
         })
         .then((res) => {
           if (res.data.message == null) {
             axios
-              .post("http://localhost:3000/user/regist", {
+              .post("http://49.235.1.205:3000/user/regist", {
                 password: password,
                 personID: res.data._id,
                 admin: adminKey,
@@ -594,7 +594,7 @@ export default {
         for (let i = 0; i < this.selected.length; i++) {
           let id = this.selected[i].AlarmId;
           axios
-            .delete("http://localhost:3000/alarm/alarmId/" + id)
+            .delete("http://49.235.1.205:3000/alarm/alarmId/" + id)
             .catch((err) => console.log(err));
         }
       }
@@ -646,7 +646,7 @@ export default {
           for (let i = 0; i < this.selected.length; i++) {
             let id = this.selected[i].AlarmId;
             axios
-              .patch("http://localhost:3000/alarm/update/" + id, {
+              .patch("http://49.235.1.205:3000/alarm/update/" + id, {
                 AckUser: this.$store.getters.UserName,
               })
               .catch((err) => console.log(err));
@@ -665,7 +665,7 @@ export default {
           for (let i = 0; i < this.selectedPerson.length; i++) {
             let id = this.selectedPerson[i].personId;
             axios
-              .delete("http://localhost:3000/person/" + id)
+              .delete("http://49.235.1.205:3000/person/" + id)
               .catch((err) => console.log(err));
           }
         }
@@ -690,7 +690,7 @@ export default {
         },
       ];
 
-      axios.get("http://localhost:3000/person").then((res) => {
+      axios.get("http://49.235.1.205:3000/person").then((res) => {
         if (res.data.length > 1) {
           
           for (let i = 0; i < res.data.length; i++) {
@@ -751,7 +751,7 @@ export default {
     getLogAlarm() {
       var alarmData = [];
 
-      axios.get("http://localhost:3000/alarm/alarmlog").then((res) => {
+      axios.get("http://49.235.1.205:3000/alarm/alarmlog").then((res) => {
         //console.log(res.data);
         if (res.data.length > 1) {
           for (let i = 0; i < res.data.length; i++) {
@@ -835,7 +835,7 @@ export default {
     getAlarm() {
       var alarmData = [];
 
-      axios.get("http://localhost:3000/alarm").then((res) => {
+      axios.get("http://49.235.1.205:3000/alarm").then((res) => {
         //console.log(res.data);
         if (res.data.length > 1) {
           for (let i = 0; i < res.data.length; i++) {
@@ -923,7 +923,7 @@ export default {
       }
 
       axios.patch(
-        "http://localhost:3000/person/" + this.$store.getters.UserID,
+        "http://49.235.1.205:3000/person/" + this.$store.getters.UserID,
         profile
       );
       location.reload();

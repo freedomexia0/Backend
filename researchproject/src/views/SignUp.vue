@@ -68,14 +68,14 @@ export default {
       }
 
       axios
-        .post("http://localhost:3000/person/regist", {
+        .post("http://49.235.1.205:3000/person/regist", {
           userName: username,
           admin: false
         })
         .then(res => {
           if(res.data.message == null){
           
-          axios.post("http://localhost:3000/user/regist",{
+          axios.post("http://49.235.1.205:3000/user/regist",{
             password:password,
             personID:res.data._id
           })

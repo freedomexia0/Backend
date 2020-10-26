@@ -83,11 +83,11 @@ export default {
       }
 
       axios
-        .get("http://localhost:3000/person/userName/" + username)
+        .get("http://49.235.1.205:3000/person/userName/" + username)
         .then(res => {
           if (res.data.message == null) {
             axios
-              .post("http://localhost:3000/user/login", {
+              .post("http://49.235.1.205:3000/user/login", {
                 password: password,
                 username: username
               })
