@@ -8,7 +8,7 @@ const Get = require('./functions/getValue')
 var get = new Get()
 
 
-mongoose.connect("mongodb://localhost:27017/ResearchProject",{ useNewUrlParser: true,useUnifiedTopology: true})
+mongoose.connect("mongodb://myUserAdmin:Tom199587!@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false",{ useNewUrlParser: true,useUnifiedTopology: true})
 const db = mongoose.connection
 db.on('error',(error) => console.error(error))
 db.once('open',() => console.log('Connected to Database'))

@@ -6,7 +6,7 @@
       <router-link to="/">Home</router-link>|
       <router-link to="/about">About</router-link>
       <div id="button">
-        <a href="http://49.235.1.205/#/login">Login/Sign up</a>
+        <a href="http://bektasic.no-ip.biz:8116/new/#/login">Login/Sign up</a>
       </div>
     </div>
   </div>

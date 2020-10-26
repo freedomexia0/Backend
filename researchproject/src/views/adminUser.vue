@@ -221,6 +221,14 @@ import { mapGetters } from "vuex";
 import axios from "axios";
 export default {
   data() {
+    var once = false;
+    var eingaenge = [];
+    var sps_data_din = [];
+    var sps_data_dot = [];
+    var sps_data_ain = [];
+    var sps_data_aot = [];
+
+    //--------------------------------------------------------------------------
     var isActive = true;
     var isSelectedModeA = false;
     var isSelectedModeB = false;
@@ -246,7 +254,15 @@ export default {
     ];
     var selected, selectedPerson;
     return {
-      selectedAuthority: [0,0,0],
+      once,
+      eingaenge,
+      sps_data_din,
+      sps_data_dot,
+      sps_data_ain,
+      sps_data_aot,
+
+      //---------------------------------
+      selectedAuthority: [0, 0, 0],
       boxOne: "",
       boxTwo: "",
       showTriggerAlert: false,
@@ -304,12 +320,7 @@ export default {
         { value: 2, text: "Below threshold trigger" },
         { value: 3, text: "Range threshold trigger" },
       ],
-      optionsTrigger: [
-        { value: null, text: "Please select a Trigger" },
-        { value: "M3", text: "Trigger: M3" },
-        { value: "M4", text: "Trigger: M4" },
-        { value: "M5", text: "Trigger: M5" },
-      ],
+      optionsTrigger: [{ value: null, text: "Please select a Trigger" }]
     };
   },
   name: "User",
@@ -318,16 +329,15 @@ export default {
   },
   computed: {
     ...mapGetters(["UserID"]),
-    ...mapGetters(["Authority"])
+    ...mapGetters(["Authority"]),
   },
   created() {
+    this.once = false;
+    this.Init_Read_eingaenge();
 
-
-    if(!this.$store.getters.Authority){
-       this.$router.replace({ name: "User" });
+    if (!this.$store.getters.Authority) {
+      this.$router.replace({ name: "User" });
     }
-
-
 
     this.showDelAlert = false;
     this.isSelectedModeA = true;
@@ -335,28 +345,194 @@ export default {
     this.AckKey = false;
     this.selected = [];
     this.selectedPerson = [];
-    setInterval(this.timer, 5000);
+    setInterval(this.timer, 800);
     this.getLogAlarm();
 
     this.getUser();
 
     let personID = this.$store.getters.UserID;
     if (personID != "default") {
-      axios.get("http://49.235.1.205:3000/person/id/" + personID).then((res) => {
-        if (res.data.userName != null) {
-          document.getElementById("username").placeholder = res.data.userName;
-        }
-        if (res.data.email != null) {
-          document.getElementById("email").placeholder = res.data.email;
-        }
-      });
+      axios
+        .get("http://49.235.1.205:3000/person/id/" + personID)
+        .then((res) => {
+          if (res.data.userName != null) {
+            document.getElementById("username").placeholder = res.data.userName;
+          }
+          if (res.data.email != null) {
+            document.getElementById("email").placeholder = res.data.email;
+          }
+        });
     } else {
       this.$router.replace({ name: "Login" });
     }
   },
   methods: {
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    timer() {
+      this.getAlarm();
+      this.getUser();
+      this.getLogAlarm();
+    this.getTrigger();
+      this.Init_Read_sps_data_din();
+
+      //      this.Init_Read_sps_data_dot();
+      //      this.Init_Read_sps_data_ain();
+      //      this.Init_Read_sps_data_aot();
+    },
+
+    getTrigger() {
+      if(this.once == false){
+      for (let i = 0; i < this.eingaenge.length; i++) {
+        var TrigerModel = {
+          value: this.eingaenge[i].name,
+          text: "Trigger:  " + this.eingaenge[i].name,
+        };
+        this.optionsTrigger.push(TrigerModel);
+      }
+      }
+        this.once = true;
+
+    },
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    cgi_file_call(mode, filepath, content, callback) {
+      fetch("/draw/cgi-bin/file", {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: mode + ";" + filepath + ";" + content, // body data type must match "Content-Type" header
+      })
+        .then((response) => response.text())
+        .then((data) => {
+          if (callback) {
+            callback(data);
+          }
+        });
+    },
+
+    Read_eingaenge_Callback(data) {
+      data = data.split("\n");
+      for (var i = 0; i < data.length; ++i) {
+        if (data[i].length > 0) {
+          var row = data[i];
+          var obj = new Object();
+
+          row = row.split("=");
+          obj.dp = row[0];
+          var content = row[1];
+          content = content.split("(");
+          obj.type = content[0];
+          var args = content[1].replace(")", "");
+          obj.args = args.split(",");
+          obj.name = obj.args[0];
+          obj.description = obj.args[6];
+          this.eingaenge.push(obj);
+        }
+      }
+    },
+
+    Sps_Reader(data) {
+      var resArr = [];
+      //   console.log("Sps_Reader",data)
+      data = data.replace(";", "");
+      data = data.split("\n");
+
+      for (var i = 0; i < data.length; ++i) {
+        if (data[i].length > 0) {
+          var row = data[i];
+          var obj = new Object();
+
+          row = row.split("+=");
+          obj.type = row[0];
+          var content = row[1];
+          content = content.replace("'", "");
+          obj.args = content.split(",");
+          obj.name = obj.args[0];
+          obj.value = obj.args[1];
+          resArr.push(obj);
+        }
+      }
+
+      return resArr;
+    },
+
+    Read_sps_data_din_Callback(data) {
+      this.sps_data_din = this.Sps_Reader(data);
+      //    console.log("sps_data_din", this.sps_data_din);
+      //  console.log("type: "+ typeof( this.sps_data_din))
+    },
+
+    Read_sps_data_dot_Callback(data) {
+      this.sps_data_dot = this.Sps_Reader(data);
+      //    console.log("sps_data_dot", this.sps_data_dot);
+    },
+
+    Read_sps_data_ain_Callback(data) {
+      this.sps_data_ain = this.Sps_Reader(data);
+      //   console.log("sps_data_ain", this.sps_data_ain);
+    },
+
+    Read_sps_data_aot_Callback(data) {
+      this.sps_data_aot = this.Sps_Reader(data);
+      //   console.log("sps_data_aot", this.sps_data_aot);
+    },
+
+    Init_Read_eingaenge() {
+      this.cgi_file_call(
+        "read",
+        "/www3-next/sps/eingaenge",
+        "",
+        this.Read_eingaenge_Callback
+      );
+    },
+
+    Init_Read_sps_data_din() {
+      this.cgi_file_call(
+        "read",
+        "/var/tmp/sps_data_din",
+        "",
+        this.Read_sps_data_din_Callback
+      );
+    },
+
+    Init_Read_sps_data_dot() {
+      this.cgi_file_call(
+        "read",
+        "/var/tmp/sps_data_dot",
+        "",
+        this.Read_sps_data_dot_Callback
+      );
+    },
+
+    Init_Read_sps_data_ain() {
+      this.cgi_file_call(
+        "read",
+        "/var/tmp/sps_data_ain",
+        "",
+        this.Read_sps_data_ain_Callback
+      );
+    },
+
+    Init_Read_sps_data_aot() {
+      this.cgi_file_call(
+        "read",
+        "/var/tmp/sps_data_aot",
+        "",
+        this.Read_sps_data_aot_Callback
+      );
+    },
+
+    //---------------------------------------------------------------------------------------------------------------------------------------------
     setTriggerMode() {
-     
       switch (this.selectedTriggerMode) {
         case 1:
           this.isSelectedModeA = false;
@@ -672,11 +848,6 @@ export default {
       }
     },
 
-    timer() {
-      this.getAlarm();
-      this.getUser();
-      this.getLogAlarm();
-    },
     getUser() {
       var personData = [
         {
@@ -692,7 +863,6 @@ export default {
 
       axios.get("http://49.235.1.205:3000/person").then((res) => {
         if (res.data.length > 1) {
-          
           for (let i = 0; i < res.data.length; i++) {
             personData[i].User_Name = res.data[i].userName;
             personData[i].personId = res.data[i]._id;
@@ -705,18 +875,17 @@ export default {
               personData[i].write = "";
             }
 
-            if ((res.data[i].authority  & 2) == 2) {
+            if ((res.data[i].authority & 2) == 2) {
               personData[i].read = "✓";
             } else {
               personData[i].read = "";
             }
 
-            if ((res.data[i].authority  & 1) == 1) {
+            if ((res.data[i].authority & 1) == 1) {
               personData[i].confirm = "✓";
             } else {
               personData[i].confirm = "";
             }
-
 
             if (i != res.data.length - 1) {
               personData[i + 1] = {
@@ -808,8 +977,8 @@ export default {
           alarmModelB.AlarmId = res.data[0].AlarmId;
           alarmModelB.AlarmMessage = res.data[0].AlarmMessage;
           alarmModelB.AlarmTime = res.data[0].AlarmTime;
-          alarmModel.TriggerValue = res.data[0].TriggerValue;
-          alarmModel.NormalizationTime = res.data[0].NormalizationTime;
+          alarmModelB.TriggerValue = res.data[0].TriggerValue;
+          alarmModelB.NormalizationTime = res.data[0].NormalizationTime;
 
           if (res.data[0].AckUser != null) {
             alarmModelB.AckUser = res.data[0].AckUser;

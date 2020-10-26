@@ -1,3 +1,27 @@
-1. User: write, read, confirm
-2. alarm delay
-3. self made confirm box
+Topic: Development open source SCADA system
+
+Development web based mango db Scada System
+
+Development open sourced Modbus Scada System
+
+ Bektas: Dipl-.Ing Cüneyt Bektas
+ Bektas: c.bektas@bektasic.de
+Meanning
+Bektas: Supervisory Control and Data Acquisition
+Bektas: Scada=Supervisory Control and Data Acquisition
+https://www.slideshare.net/InductiveAutomation/10-steps-to-architecting-a-sustainable-scada-system-124318134
+
+https://instrumentationtools.com/overview-of-scada-system/
+
+1. database structure design
+2. Scada system 
+
+
+db.createUser(
+  {
+    user: "api",
+    pwd:  passwordPrompt(),   // or cleartext password
+    roles: [ { role: "readWrite", db: "researchproject" },
+             { role: "read", db: "admin" } ]
+  }
+)
