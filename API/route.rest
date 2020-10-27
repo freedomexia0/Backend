@@ -1,10 +1,10 @@
 GET http://49.235.1.205:3000/person
 
 ###
-GET http://49.235.1.205:3000/alarm/alarmId/0
+GET http://49.235.1.205:3000/alarm/alarmIdlogName/AIN2
 
 ###
-GET http://localhost:3000/alarm/alarmlog
+GET http://49.235.1.205:3000/alarm/alarmlog
 
 
 ###
@@ -39,12 +39,11 @@ Content-Type: application/json
 }
 
 ###
-PATCH http://localhost:3000/alarm/update/6
+PATCH http://49.235.1.205:3000/alarm/update/2
 Content-Type: application/json
 
 {
-    "TriggerValue":3,
-    "TriggerStatus":0
+    "Alarmlevel":2
 
 }
 // ""

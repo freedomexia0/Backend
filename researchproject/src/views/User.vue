@@ -94,6 +94,11 @@ import { mapGetters } from "vuex";
 import axios from "axios";
 export default {
   data() {
+        var eingaenge = [];
+    var sps_data_din = [];
+    var sps_data_dot = [];
+    var sps_data_ain = [];
+    var sps_data_aot = [];
      var isAlarmActive = true;
     var isPersonalActive = true;
         var isMenuActive = true;
@@ -114,6 +119,11 @@ export default {
 
     var selected;
     return {
+            eingaenge,
+      sps_data_din,
+      sps_data_dot,
+      sps_data_ain,
+      sps_data_aot,
       isMenuActive,
       isAlarmActive,
       isPersonalActive,
@@ -178,6 +188,245 @@ export default {
     }
   },
   methods: {
+
+     getRealData: async function () {
+      if (this.sps_data_ain.length != 0) {
+        for (let i = 0; i < this.sps_data_ain.length; i++) {
+          this.getTriggerValue(
+            this.sps_data_ain[i].name,
+            this.sps_data_ain[i].value
+          );
+          await this.Sleep(800);
+        }
+      }
+    },
+
+    getAllTrigger() {
+      axios.get("http://49.235.1.205:3000/alarm/alarmlog").then(async (res) => {
+        for (let i = 0; i < this.sps_data_ain.length; i++) {
+          for (let k = 0; k < res.data.length; k++) {
+            if (
+              this.sps_data_ain[i].name == res.data[k].AlarmTrigger &&
+              res.data[k].AckUser == null
+            ) {
+              this.getTriggerValue(
+                this.sps_data_ain[i].name,
+                this.sps_data_ain[i].value
+              );
+              await this.Sleep(300);
+            }
+          }
+        }
+      });
+    },
+
+    getTriggerValue(name, value) {
+      var trigger = 0;
+      var alarmLevel = 0;
+      axios
+        .get("http://49.235.1.205:3000/alarm/alarmIdlogName/" + name)
+        .then((res) => {
+          if (res.data.message == null) {
+            switch (res.data.TriggerMode) {
+              case 1:
+                if (value > res.data.AlarmMax) {
+                  trigger = 1;
+                } else {
+                  trigger = 0;
+                }
+
+                break;
+              case 2:
+                if (value < res.data.AlarmMin) {
+                  trigger = 1;
+                } else {
+                  trigger = 0;
+                }
+                break;
+              case 3:
+                if (res.data.AlarmMax >= res.data.AlarmMin) {
+                  if (value < res.data.AlarmMin || value > res.data.AlarmMax) {
+                    trigger = 1;
+                  } else {
+                    trigger = 0;
+                  }
+                } else {
+                  if (value > res.data.AlarmMax && value < res.data.AlarmMin) {
+                    trigger = 1;
+                  } else {
+                    trigger = 0;
+                  }
+                }
+                break;
+            }
+            if (trigger == 1) {
+              alarmLevel = 3;
+            }
+            if (trigger == 0 && res.data.NormalizationTime != null) {
+              alarmLevel = 1;
+            }
+            if (trigger == 0 && res.data.AlarmTime == null) {
+              alarmLevel = 2;
+            }
+            if (res.data.AckUser != null) {
+              alarmLevel = 0;
+            }
+            console.log(alarmLevel);
+            axios
+              .patch(
+                "http://49.235.1.205:3000/alarm/update/" + res.data.AlarmId,
+                {
+                  TriggerValue: value,
+                  TriggerStatus: trigger,
+                  Alarmlevel: alarmLevel,
+                }
+              )
+              .catch(() => {});
+          }
+        })
+        .catch(() => {});
+    },
+
+    //-------------------------------------------------------------------------------------------------------------------
+
+
+    cgi_file_call(mode, filepath, content, callback) {
+      fetch("/draw/cgi-bin/file", {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: mode + ";" + filepath + ";" + content, // body data type must match "Content-Type" header
+      })
+        .then((response) => response.text())
+        .then((data) => {
+          if (callback) {
+            callback(data);
+          }
+        });
+    },
+
+    Read_eingaenge_Callback(data) {
+      data = data.split("\n");
+      for (var i = 0; i < data.length; ++i) {
+        if (data[i].length > 0) {
+          var row = data[i];
+          var obj = new Object();
+
+          row = row.split("=");
+          obj.dp = row[0];
+          var content = row[1];
+          content = content.split("(");
+          obj.type = content[0];
+          var args = content[1].replace(")", "");
+          obj.args = args.split(",");
+          obj.name = obj.args[0];
+          obj.description = obj.args[6];
+          this.eingaenge.push(obj);
+        }
+      }
+    },
+
+    Sps_Reader(data) {
+      var resArr = [];
+      //   console.log("Sps_Reader",data)
+      data = data.replace(";", "");
+      data = data.split("\n");
+
+      for (var i = 0; i < data.length; ++i) {
+        if (data[i].length > 0) {
+          var row = data[i];
+          var obj = new Object();
+
+          row = row.split("+=");
+          obj.type = row[0];
+          var content = row[1];
+          content = content.replace("'", "");
+          obj.args = content.split(",");
+          obj.name = obj.args[0];
+          obj.value = obj.args[1];
+          resArr.push(obj);
+        }
+      }
+
+      return resArr;
+    },
+
+    Read_sps_data_din_Callback(data) {
+      this.sps_data_din = this.Sps_Reader(data);
+      //    console.log("sps_data_din", this.sps_data_din);
+      //  console.log("type: "+ typeof( this.sps_data_din))
+    },
+
+    Read_sps_data_dot_Callback(data) {
+      this.sps_data_dot = this.Sps_Reader(data);
+      //    console.log("sps_data_dot", this.sps_data_dot);
+    },
+
+    Read_sps_data_ain_Callback(data) {
+      this.sps_data_ain = this.Sps_Reader(data);
+      //   console.log("sps_data_ain", this.sps_data_ain);
+    },
+
+    Read_sps_data_aot_Callback(data) {
+      this.sps_data_aot = this.Sps_Reader(data);
+      //   console.log("sps_data_aot", this.sps_data_aot);
+    },
+
+    Init_Read_eingaenge() {
+      this.cgi_file_call(
+        "read",
+        "/www3-next/sps/eingaenge",
+        "",
+        this.Read_eingaenge_Callback
+      );
+    },
+
+    Init_Read_sps_data_din() {
+      this.cgi_file_call(
+        "read",
+        "/var/tmp/sps_data_din",
+        "",
+        this.Read_sps_data_din_Callback
+      );
+    },
+
+    Init_Read_sps_data_dot() {
+      this.cgi_file_call(
+        "read",
+        "/var/tmp/sps_data_dot",
+        "",
+        this.Read_sps_data_dot_Callback
+      );
+    },
+
+    Init_Read_sps_data_ain() {
+      this.cgi_file_call(
+        "read",
+        "/var/tmp/sps_data_ain",
+        "",
+        this.Read_sps_data_ain_Callback
+      );
+    },
+
+    Init_Read_sps_data_aot() {
+      this.cgi_file_call(
+        "read",
+        "/var/tmp/sps_data_aot",
+        "",
+        this.Read_sps_data_aot_Callback
+      );
+    },
+
+
+
+    //---------------------------------------------------------------------------------------------------------------------
       personalShow() {
       this.isPersonalActive = false;
       this.isBackActive = false;
@@ -247,8 +496,9 @@ export default {
             let id = this.selected[i].AlarmId;
             console.log(id);
             axios
-              .patch("http://localhost:3000/alarm/update/" + id, {
+              .patch("http://49.235.1.205:3000/alarm/update/" + id, {
                 AckUser: this.$store.getters.UserName,
+                Alarmlevel: 2
               })
               .catch((err) => console.log(err));
           }
@@ -259,6 +509,13 @@ export default {
 
     timer() {
       this.getAlarm();
+
+
+      this.getAllTrigger();
+
+
+      this.Init_Read_sps_data_ain();
+
     },
 
     getAckKey() {
@@ -271,7 +528,7 @@ export default {
     getAlarm() {
       var alarmData = [];
 
-      axios.get("http://localhost:3000/alarm").then((res) => {
+      axios.get("http://49.235.1.205:3000/alarm").then((res) => {
         //console.log(res.data);
         if (res.data.length > 1) {
           for (let i = 0; i < res.data.length; i++) {

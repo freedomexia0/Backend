@@ -4,7 +4,7 @@ function api(){
     
     this.getValue = function(){
         var testData = {
-            // Trigger:"AIN", wait for the real data
+            
             AlarmId: 11,
             TriggerValue: 3
 

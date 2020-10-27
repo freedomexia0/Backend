@@ -1,6 +1,6 @@
 <template>
   <div id="header">
-    <h1>Research Project Test Webpage</h1>
+    <h1>Alarm Management</h1>
 
     <div   id="nav">
       <router-link to="/">Home</router-link>|

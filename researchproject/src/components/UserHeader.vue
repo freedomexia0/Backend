@@ -1,6 +1,6 @@
 <template>
-  <div id="header">
-    <h1>Research Project Test Webpage</h1>
+  <div id="header" class="Header">
+    <h1>Alarm Management</h1>
     <h2>Welcome!</h2>
     <h2 id="userName"> {{username}} </h2>
     
@@ -51,6 +51,10 @@ export default {
   margin-top: 25px;
   font-size: 1em;
 }
+#header {
+  background-color: rgba(201, 201, 201, 0.227);
+}
+
 
 @media only screen and (min-width: 650px) {
 #header button {

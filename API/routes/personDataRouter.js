@@ -89,8 +89,11 @@ router.patch('/:id',getData,async (req,res) => {
     try {
         const updateData = await res.Data.save()
         nameData = await userPasswordData.findOne({personID: req.params.id})
-        nameData.admin = req.body.admin
-        nameData.save()
+        if(req.body.admin!=null){
+            nameData.admin = req.body.admin
+            nameData.save()
+        }
+        
         res.json(updateData)
     } catch (error) {
         res.status(400).json({message: error.message})

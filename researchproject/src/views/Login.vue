@@ -125,10 +125,46 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow: auto;
 }
-.googleIcon {
-  height: 20px;
+figure {
+  margin: 1em;
+
+  padding: 0;
 }
+
+img {
+  width: 10em;
+}
+
+.selectCard {
+  display: inline-flex;
+  margin-top: 10em;
+}
+
+.back {
+  display: inline-flex;
+}
+.leftMargin {
+  height: 5em;
+  width: 50em;
+}
+
+.adminManul {
+  display: inline-flex;
+}
+
+.adminVertical {
+  width: 80%;
+}
+
+.Hide {
+  display: none;
+}
+.unHide {
+  display: inline;
+}
+
 .text-container {
   margin: 3em 2.5em;
 }
@@ -139,7 +175,7 @@ body {
 
 .login-with-google {
   width: 80%;
-  height: 50px;
+  height: 100px;
 }
 
 .login-forget {
@@ -150,7 +186,7 @@ body {
 }
 .button {
   background: #00cc80;
-  width: calc(100% - 2.5em);
+  width: 15em;
   height: 2.5em;
   line-height: 0;
   display: block;
@@ -166,25 +202,10 @@ body {
 .text-input {
   width: 90%;
 }
-.forget_btn {
-  margin: 0;
-  font-size: 0.8em;
-}
-.container {
-  background-color: aliceblue;
-  width: 80%;
-  margin: 0 auto;
-  position: relative;
-  top: 50px;
-  border-radius: 8px;
-}
-   .container {
-  background-color: aliceblue;
-  width: 300px;
-  margin: 0 auto;
-  position: relative;
-  top: 50px;
-  border-radius: 8px;
+
+.text-container {
+  margin-left: 25%;
+  width: 50%;
 }
 
 

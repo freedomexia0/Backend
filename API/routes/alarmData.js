@@ -308,7 +308,7 @@ async function getData(req, res, next){
 async function getAlarmData(req, res, next){
     let AlarmData
     try {
-        AlarmData = await alarmData.findOne({AlarmId: req.params.AlarmId})
+        AlarmData = await alarmData.findOne({AlarmTrigger: req.params.AlarmTrigger})
             if(AlarmData == null){
                 return res.status(404).json({message: 'Cannot find alarm data!'})
             }

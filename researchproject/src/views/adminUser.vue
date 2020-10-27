@@ -237,7 +237,6 @@
           <button class="button" v-on:click="create_alarm()">
             Create alarm
           </button>
-          <button class="button" v-on:click="cancel_alarm()">Back</button>
         </div>
       </div>
     </div>
@@ -379,6 +378,7 @@ export default {
   },
   created() {
     this.once = false;
+    this.reloadFlag = true;
     this.Init_Read_eingaenge();
 
     if (!this.$store.getters.Authority) {
@@ -449,26 +449,125 @@ export default {
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
 
     timer() {
-
       this.getAlarm();
       this.getUser();
       this.getLogAlarm();
       this.getTrigger();
-      this.Init_Read_sps_data_din();
 
-      //      this.Init_Read_sps_data_dot();
-      //      this.Init_Read_sps_data_ain();
-      //      this.Init_Read_sps_data_aot();
+      this.getAllTrigger();
+
+
+      this.Init_Read_sps_data_ain();
+
+    },
+    getRealData: async function () {
+      if (this.sps_data_ain.length != 0) {
+        for (let i = 0; i < this.sps_data_ain.length; i++) {
+          this.getTriggerValue(
+            this.sps_data_ain[i].name,
+            this.sps_data_ain[i].value
+          );
+          await this.Sleep(800);
+        }
+      }
+    },
+
+    getAllTrigger() {
+      axios.get("http://49.235.1.205:3000/alarm/alarmlog").then(async (res) => {
+        for (let i = 0; i < this.sps_data_ain.length; i++) {
+          for (let k = 0; k < res.data.length; k++) {
+            if (
+              this.sps_data_ain[i].name == res.data[k].AlarmTrigger &&
+              res.data[k].AckUser == null
+            ) {
+              this.getTriggerValue(
+                this.sps_data_ain[i].name,
+                this.sps_data_ain[i].value
+              );
+              await this.Sleep(300);
+            }
+          }
+        }
+      });
+    },
+
+    getTriggerValue(name, value) {
+      var trigger = 0;
+      var alarmLevel = 0;
+      axios
+        .get("http://49.235.1.205:3000/alarm/alarmIdlogName/" + name)
+        .then((res) => {
+          if (res.data.message == null) {
+            switch (res.data.TriggerMode) {
+              case 1:
+                if (value > res.data.AlarmMax) {
+                  trigger = 1;
+                } else {
+                  trigger = 0;
+                }
+
+                break;
+              case 2:
+                if (value < res.data.AlarmMin) {
+                  trigger = 1;
+                } else {
+                  trigger = 0;
+                }
+                break;
+              case 3:
+                if (res.data.AlarmMax >= res.data.AlarmMin) {
+                  if (value < res.data.AlarmMin || value > res.data.AlarmMax) {
+                    trigger = 1;
+                  } else {
+                    trigger = 0;
+                  }
+                } else {
+                  if (value > res.data.AlarmMax && value < res.data.AlarmMin) {
+                    trigger = 1;
+                  } else {
+                    trigger = 0;
+                  }
+                }
+                break;
+            }
+            if (trigger == 1) {
+              alarmLevel = 3;
+            }
+            if (trigger == 0 && res.data.NormalizationTime != null) {
+              alarmLevel = 1;
+            }
+            if (trigger == 0 && res.data.AlarmTime == null) {
+              alarmLevel = 2;
+            }
+            if (res.data.AckUser != null) {
+              alarmLevel = 0;
+            }
+            console.log(alarmLevel);
+            axios
+              .patch(
+                "http://49.235.1.205:3000/alarm/update/" + res.data.AlarmId,
+                {
+                  TriggerValue: value,
+                  TriggerStatus: trigger,
+                  Alarmlevel: alarmLevel,
+                }
+              )
+              .catch(() => {});
+          }
+        })
+        .catch(() => {});
     },
 
     getTrigger() {
       if (this.once == false) {
         for (let i = 0; i < this.eingaenge.length; i++) {
+          
           var TrigerModel = {
             value: this.eingaenge[i].name,
             text: "Trigger:  " + this.eingaenge[i].name,
           };
           this.optionsTrigger.push(TrigerModel);
+          
         }
       }
       this.once = true;
@@ -675,9 +774,33 @@ export default {
         alertMessage = true;
       }
 
+
+      for(let i =0;i<this.itemsLog.length;i++){
+        if(this.selectedTrigger==this.itemsLog[i].AlarmTrigger){
+        this.$bvModal
+          .msgBoxConfirm("This Channal already used!", {
+            title: "Please Confirm",
+            size: "sm",
+            buttonSize: "sm",
+            okVariant: "danger",
+            okTitle: "YES",
+            cancelTitle: "NO",
+            footerClass: "p-2",
+            hideHeaderClose: false,
+            centered: true,
+          })
+        return;
+
+        }
+      }
+
+
       if (!alertTrigger && !alertMode && !alertMessage) {
         axios
           .post("http://49.235.1.205:3000/alarm/create", newAlarm)
+          .then(() => {
+            this.showSuccess();
+          })
           .catch((err) => console.log(err));
       }
     },
@@ -899,10 +1022,25 @@ export default {
           .then(async (value) => {
             if (value == true) {
               for (let i = 0; i < this.selected.length; i++) {
+                if ((this.selected[i].AckUser != null)||(this.selected[i].AlarmTime==null)) {
+                  this.$bvModal.msgBoxConfirm("You can't confirm this alarm!", {
+                    title: "Please Confirm",
+                    size: "sm",
+                    buttonSize: "sm",
+                    okVariant: "danger",
+                    okTitle: "YES",
+                    cancelTitle: "NO",
+                    footerClass: "p-2",
+                    hideHeaderClose: false,
+                    centered: true,
+                  });
+                  return;
+                }
                 let id = this.selected[i].AlarmId;
                 axios
                   .patch("http://49.235.1.205:3000/alarm/update/" + id, {
                     AckUser: this.$store.getters.UserName,
+                    Alarmlevel: 2,
                   })
                   .catch((err) => console.log(err));
               }
