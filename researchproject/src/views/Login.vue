@@ -178,9 +178,6 @@ body {
   top: 50px;
   border-radius: 8px;
 }
-
-
-@media only screen and (min-width:450px){
    .container {
   background-color: aliceblue;
   width: 300px;
@@ -191,5 +188,4 @@ body {
 }
 
 
-}
 </style>

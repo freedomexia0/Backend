@@ -31,7 +31,7 @@ export default {
      ...mapMutations(['changeID']),
      logout: function(){
         this.$store.commit('changeID','default')
-        this.$router.replace({ name: "Home" });
+        this.$router.replace({ name: "Login" });
 
      }
   },

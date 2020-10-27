@@ -2,31 +2,56 @@
   <div>
     <div class="content">
       <UserHeader />
+      <div v-bind:class="[isBackActive ? 'Hide' : 'unHide']">
+        <div class="back">
+          <div class="leftMargin"></div>
+          <button class="button" v-on:click="allBack()">Back</button>
+        </div>
+      </div>
+      <div v-bind:class="[isMenuActive ? 'unHide' : 'Hide']">
+        <div class="selectCard">
+          <figure>
+            <img src="../assets/personal.png" v-on:click="personalShow()" />
+          </figure>
+          <figure>
+            <img src="../assets/person.png" v-on:click="personShow()" />
+          </figure>
+          <figure>
+            <img src="../assets/alarmlog.png" v-on:click="alarmShow()" />
+          </figure>
+          <figure>
+            <img src="../assets/newalarm.png" v-on:click="addAlarmShow()" />
+          </figure>
+        </div>
+      </div>
+
       <div class="text-container">
-        <h2>Username</h2>
-        <div class="border">
-          <input
-            id="username"
-            type="text"
-            class="text-input text-input--underbar"
-            placeholder="Enter your user name"
-            value
-            readonly
-          />
+        <div v-bind:class="[isPersonalActive ? 'Hide' : 'unHide']">
+          <h2>Username</h2>
+          <div class="border">
+            <input
+              id="username"
+              type="text"
+              class="text-input text-input--underbar"
+              placeholder="Enter your user name"
+              value
+              readonly
+            />
+          </div>
+          <h2>E-mail</h2>
+          <div class="border">
+            <input
+              id="email"
+              type="text"
+              class="text-input text-input--underbar"
+              placeholder="********"
+              value
+            />
+          </div>
+          <button class="button" v-on:click="save()">Save</button>
         </div>
 
-        <h2>E-mail</h2>
-        <div class="border">
-          <input
-            id="email"
-            type="text"
-            class="text-input text-input--underbar"
-            placeholder="********"
-            value
-          />
-        </div>
-
-        <div>
+        <div v-bind:class="[isAdminActive ? 'Hide' : 'unHide']">
           <b-table
             v-bind:class="[isActive ? 'unHide' : 'Hide']"
             ref="personTable"
@@ -35,6 +60,8 @@
             :fields="personFields"
             @row-selected="onRowSelectedPerson"
             responsive="sm"
+            sticky-header
+            head-variant="light"
           >
           </b-table>
           <div v-bind:class="[isActive ? 'Hide' : 'unHide']">
@@ -51,6 +78,9 @@
                   value
                 />
               </div>
+              <b-alert v-model="showUserNameAlert" variant="danger" dismissible>
+                Please enter user name!
+              </b-alert>
 
               <h2>Password</h2>
               <div class="border">
@@ -62,42 +92,52 @@
                   value
                 />
               </div>
-              <h2>Authority</h2>
-              <div class="border">
-                <label for="username">Admin</label>
-                <ons-checkbox value="admin"></ons-checkbox>
-              </div>
+              <b-alert v-model="showUserPassword" variant="danger" dismissible>
+                Please enter your password!
+              </b-alert>
+              <b-alert
+                v-model="showUserLongPassword"
+                variant="danger"
+                dismissible
+              >
+                The password should be longer than 10 digits!
+              </b-alert>
 
               <button class="button" v-on:click="sign_in()">Create User</button>
               <button class="button" v-on:click="cancel()">Back</button>
             </div>
           </div>
           <div v-bind:class="[isActive ? 'unHide' : 'Hide']">
-            <button class="button" v-on:click="addUser()">Add User</button>
-            <button class="button" v-on:click="setAdmin()">
-              Give Admin Authority
-            </button>
-            <b-form-group label="Authority settings:">
-              <b-form-checkbox-group
-                id="checkbox-group-1"
-                v-model="selectedAuthority"
-                :options="optionsAuthority"
-                name="flavour-1"
-              ></b-form-checkbox-group>
-            </b-form-group>
-            <b-button size="sm" @click="setAuthority"
-              >Update Authority</b-button
-            >
+            <div class="adminManul">
+              <b-form-group label="Authority settings:">
+                <b-form-checkbox-group
+                  id="checkbox-group-1"
+                  v-model="selectedAuthority"
+                  :options="optionsAuthority"
+                  name="flavour-1"
+                  stacked
+                ></b-form-checkbox-group>
+              </b-form-group>
+              <b-button size="sm" @click="setAuthority"
+                >Update Authority</b-button
+              >
 
-            <button class="button" v-on:click="rmAdmin()">
-              Remove Admin Authority
-            </button>
-            <button class="button" v-on:click="delUser()">Delete User</button>
+              <div class="adminVertical">
+                <button class="button" v-on:click="addUser()">Add User</button>
+                <button class="button" v-on:click="setAdmin()">
+                  Give Admin Authority
+                </button>
+
+                <button class="button" v-on:click="delUser()">
+                  Delete User
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div>
-          <h1>This is Admin Log view Table</h1>
+        <div v-bind:class="[isAlarmActive ? 'Hide' : 'unHide']">
+          <h1>Admin Log view Table</h1>
 
           <b-table
             ref="selectableTable"
@@ -120,27 +160,18 @@
               </template>
             </template>
           </b-table>
-          <p>
-            <b-button size="sm" @click="selectAllRows">Select all</b-button>
-            <b-button size="sm" @click="clearSelected">Clear selected</b-button>
-            <b-button size="sm" @click="showMsgBoxTwo">Delete</b-button>
-            <b-alert v-model="showDelAlert" variant="danger" dismissible>
-              Please select at least one alarm!
-            </b-alert>
-          </p>
-          <p>
-            Selected Person Rows:<br />
-            {{ selectedPerson }}
-          </p>
-          <p>
-            Selected Rows:<br />
-            {{ selected }}
-          </p>
+
+          <b-button size="sm" @click="selectAllRows">Select all</b-button>
+          <b-button size="sm" @click="clearSelected">Clear selected</b-button>
+          <b-button size="sm" @click="showMsgBoxTwo">Delete</b-button>
+          <b-button size="sm" @click="ackAlarm">Acknowledge</b-button>
+          <b-alert v-model="showDelAlert" variant="danger" dismissible>
+            Please select at least one alarm!
+          </b-alert>
         </div>
 
-        <h3>Add new alarm</h3>
-
-        <div>
+        <div v-bind:class="[isNewAlarmActive ? 'Hide' : 'unHide']">
+          <h3>Add new alarm</h3>
           <div>
             <b-form-select
               v-model="selectedTrigger"
@@ -209,8 +240,6 @@
           <button class="button" v-on:click="cancel_alarm()">Back</button>
         </div>
       </div>
-
-      <button class="button" v-on:click="save()">Save</button>
     </div>
   </div>
 </template>
@@ -221,6 +250,7 @@ import { mapGetters } from "vuex";
 import axios from "axios";
 export default {
   data() {
+    var reloadFlag = true;
     var once = false;
     var eingaenge = [];
     var sps_data_din = [];
@@ -229,6 +259,12 @@ export default {
     var sps_data_aot = [];
 
     //--------------------------------------------------------------------------
+    var isAdminActive = true;
+    var isMenuActive = true;
+    var isBackActive = true;
+    var isNewAlarmActive = true;
+    var isAlarmActive = true;
+    var isPersonalActive = true;
     var isActive = true;
     var isSelectedModeA = false;
     var isSelectedModeB = false;
@@ -254,6 +290,7 @@ export default {
     ];
     var selected, selectedPerson;
     return {
+      reloadFlag,
       once,
       eingaenge,
       sps_data_din,
@@ -265,6 +302,9 @@ export default {
       selectedAuthority: [0, 0, 0],
       boxOne: "",
       boxTwo: "",
+      showUserPassword: false,
+      showUserLongPassword: false,
+      showUserNameAlert: false,
       showTriggerAlert: false,
       showModeAlert: false,
       showMessageAlert: false,
@@ -304,6 +344,12 @@ export default {
         "AckUser",
         { key: "NormalizationTime", sortable: true },
       ],
+      isAlarmActive,
+      isMenuActive,
+      isPersonalActive,
+      isAdminActive,
+      isBackActive,
+      isNewAlarmActive,
       isActive,
       isSelectedModeA,
       isSelectedModeB,
@@ -320,7 +366,7 @@ export default {
         { value: 2, text: "Below threshold trigger" },
         { value: 3, text: "Range threshold trigger" },
       ],
-      optionsTrigger: [{ value: null, text: "Please select a Trigger" }]
+      optionsTrigger: [{ value: null, text: "Please select a Trigger" }],
     };
   },
   name: "User",
@@ -367,13 +413,47 @@ export default {
     }
   },
   methods: {
+    personalShow() {
+      this.isPersonalActive = false;
+      this.isBackActive = false;
+      this.isMenuActive = false;
+    },
+
+    personShow() {
+      this.isAdminActive = false;
+      this.isBackActive = false;
+      this.isMenuActive = false;
+    },
+
+    alarmShow() {
+      this.isAlarmActive = false;
+      this.isBackActive = false;
+      this.isMenuActive = false;
+    },
+
+    addAlarmShow() {
+      this.isNewAlarmActive = false;
+      this.isBackActive = false;
+      this.isMenuActive = false;
+    },
+
+    allBack() {
+      this.isPersonalActive = true;
+      this.isAdminActive = true;
+      this.isAlarmActive = true;
+      this.isNewAlarmActive = true;
+      this.isBackActive = true;
+      this.isMenuActive = true;
+    },
+
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
 
     timer() {
+
       this.getAlarm();
       this.getUser();
       this.getLogAlarm();
-    this.getTrigger();
+      this.getTrigger();
       this.Init_Read_sps_data_din();
 
       //      this.Init_Read_sps_data_dot();
@@ -382,17 +462,16 @@ export default {
     },
 
     getTrigger() {
-      if(this.once == false){
-      for (let i = 0; i < this.eingaenge.length; i++) {
-        var TrigerModel = {
-          value: this.eingaenge[i].name,
-          text: "Trigger:  " + this.eingaenge[i].name,
-        };
-        this.optionsTrigger.push(TrigerModel);
+      if (this.once == false) {
+        for (let i = 0; i < this.eingaenge.length; i++) {
+          var TrigerModel = {
+            value: this.eingaenge[i].name,
+            text: "Trigger:  " + this.eingaenge[i].name,
+          };
+          this.optionsTrigger.push(TrigerModel);
+        }
       }
-      }
-        this.once = true;
-
+      this.once = true;
     },
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -678,53 +757,30 @@ export default {
       }
     },
 
-    rmAdmin: async function () {
-      if (this.selectedPerson.length == 0) {
-        alert("You didn't choose an User!");
-      } else {
-        var result = confirm(
-          "Are you sure to remove Admin authority from the User(s)?"
-        );
-        if (result == true) {
-          for (let i = 0; i < this.selectedPerson.length; i++) {
-            let id = this.selectedPerson[i].personId;
-            let profile = { ...profile, admin: false };
-
-            //console.log(profile);
-            axios.patch("http://49.235.1.205:3000/person/" + id, profile);
-
-            await this.Sleep(300);
-          }
-        }
-      }
-    },
-
     Sleep(milliseconds) {
       return new Promise((resolve) => setTimeout(resolve, milliseconds));
     },
 
     sign_in: async function () {
+      this.showUserNameAlert = false;
+      this.showUserPassword = false;
+      this.showUserLongPassword = false;
+
       let username = document.getElementById("new_username").value;
       let password = document.getElementById("password").value;
       let adminKey = false;
 
-      if (document.querySelector("ons-checkbox").value == "admin") {
-        adminKey = true;
-      }
-
       if (username == "") {
-        alert("Please enter user name!");
+        this.showUserNameAlert = true;
         return;
       }
       if (password == "") {
-        alert("Please enter your password!");
+        this.showUserPassword = true;
         return;
       } else if (password.length < 10) {
-        // document.getElementById("Warn").value = 'test';
-        alert("Password should be more than 10 digits!");
+        this.showUserLongPassword = true;
         return;
       }
-
       axios
         .post("http://49.235.1.205:3000/person/regist", {
           userName: username,
@@ -744,6 +800,10 @@ export default {
           }
         })
         .catch((err) => console.log(err));
+
+      this.showSuccess();
+      document.getElementById("new_username").value = "";
+      document.getElementById("password").value = "";
     },
 
     addUser() {
@@ -787,6 +847,13 @@ export default {
           console.log(err); // An error occurred
         });
     },
+    showSuccess() {
+      this.$bvModal.msgBoxConfirm("Process finished!", {
+        title: "Success",
+        centered: true,
+        okTitle: "OK",
+      });
+    },
     showMsgBoxTwo() {
       if (this.selected.length == 0) {
         this.showDelAlert = true;
@@ -817,17 +884,33 @@ export default {
       if (this.selected.length == 0) {
         alert("You didn't choose an Alarm!");
       } else {
-        var result = confirm("Are you sure to confirm selected Alarm?");
-        if (result == true) {
-          for (let i = 0; i < this.selected.length; i++) {
-            let id = this.selected[i].AlarmId;
-            axios
-              .patch("http://49.235.1.205:3000/alarm/update/" + id, {
-                AckUser: this.$store.getters.UserName,
-              })
-              .catch((err) => console.log(err));
-          }
-        }
+        this.$bvModal
+          .msgBoxConfirm("Are you sure to acknowledge?.", {
+            title: "Please Confirm",
+            size: "sm",
+            buttonSize: "sm",
+            okVariant: "danger",
+            okTitle: "YES",
+            cancelTitle: "NO",
+            footerClass: "p-2",
+            hideHeaderClose: false,
+            centered: true,
+          })
+          .then(async (value) => {
+            if (value == true) {
+              for (let i = 0; i < this.selected.length; i++) {
+                let id = this.selected[i].AlarmId;
+                axios
+                  .patch("http://49.235.1.205:3000/alarm/update/" + id, {
+                    AckUser: this.$store.getters.UserName,
+                  })
+                  .catch((err) => console.log(err));
+              }
+            }
+          })
+          .catch((err) => {
+            console.log(err); // An error occurred
+          });
       }
     },
     delUser() {
@@ -1082,26 +1165,26 @@ export default {
     },
 
     save: async function () {
-      let profile = {};
       let new_email = document.getElementById("email").value;
 
-      let email = document.getElementById("email").placeholder;
+      //  let email = document.getElementById("email").placeholder;
 
-      if (new_email != "" && email != new_email) {
-        profile = { ...profile, email: new_email };
+      if (new_email != "") {
+        axios
+          .patch(
+            "http://49.235.1.205:3000/person/" + this.$store.getters.UserID,
+            { email: new_email }
+          )
+          .then(() => {
+            location.reload();
+          });
       }
-
-      axios.patch(
-        "http://49.235.1.205:3000/person/" + this.$store.getters.UserID,
-        profile
-      );
-      location.reload();
     },
   },
 };
 </script>
 
-<style lang="css" >
+<style lang="css">
 body {
   background-color: #efeff4;
   width: 100%;
@@ -1110,9 +1193,35 @@ body {
   padding: 0;
   overflow: auto;
 }
+figure {
+  margin: 1em;
 
-table#table-transition-example .flip-list-move {
-  transition: transform 1s;
+  padding: 0;
+}
+
+img {
+  width: 10em;
+}
+
+.selectCard {
+  display: inline-flex;
+  margin-top: 10em;
+}
+
+.back {
+  display: inline-flex;
+}
+.leftMargin {
+  height: 5em;
+  width: 50em;
+}
+
+.adminManul {
+  display: inline-flex;
+}
+
+.adminVertical {
+  width: 80%;
 }
 
 .Hide {
@@ -1143,7 +1252,7 @@ table#table-transition-example .flip-list-move {
 }
 .button {
   background: #00cc80;
-  width: calc(100% - 2.5em);
+  width: 15em;
   height: 2.5em;
   line-height: 0;
   display: block;
@@ -1161,20 +1270,7 @@ table#table-transition-example .flip-list-move {
 }
 
 .text-container {
-  width: 80%;
-}
-
-@media only screen and (min-width: 650px) {
-  table#table-transition-example .flip-list-move {
-    transition: transform 1s;
-  }
-
-  .text-container {
-    margin-left: 25%;
-    width: 50%;
-  }
-  .button {
-    width: calc(100% - 20em);
-  }
+  margin-left: 25%;
+  width: 50%;
 }
 </style>

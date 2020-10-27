@@ -1,7 +1,7 @@
 GET http://49.235.1.205:3000/person
 
 ###
-GET http://49.235.1.205:3000/alarm/alarmId/1
+GET http://49.235.1.205:3000/alarm/alarmId/0
 
 ###
 GET http://localhost:3000/alarm/alarmlog
@@ -9,7 +9,11 @@ GET http://localhost:3000/alarm/alarmlog
 
 ###
 
-GET http://localhost:3000/person/id/5f896a3452e7fb352c603afb
+PATCH http://49.235.1.205:3000/person/5f972d88122b1d3eb625e166
+Content-Type: application/json
+
+{
+}
 
 
 ###

@@ -2,31 +2,54 @@
   <div>
     <div class="content">
       <UserHeader />
+
+
+      <div v-bind:class="[isBackActive ? 'Hide' : 'unHide']">
+        <div class="back">
+          <div class="leftMargin"></div>
+          <button class="button" v-on:click="allBack()">Back</button>
+        </div>
+      </div>
+
+        <div v-bind:class="[isMenuActive ? 'unHide' : 'Hide']">
+        <div class="selectCard">
+          <figure>
+            <img src="../assets/personal.png" v-on:click="personalShow()" />
+          </figure>
+          <figure>
+            <img src="../assets/alarmlog.png" v-on:click="alarmShow()" />
+          </figure>
+        </div>
+      </div>
+
+
       <div class="text-container">
-        <h2>Username</h2>
-        <div class="border">
-          <input
-            id="username"
-            type="text"
-            class="text-input text-input--underbar"
-            placeholder="Enter your user name"
-            value
-            readonly
-          />
+        <div v-bind:class="[isPersonalActive ? 'Hide' : 'unHide']">
+          <h2>Username</h2>
+          <div class="border">
+            <input
+              id="username"
+              type="text"
+              class="text-input text-input--underbar"
+              placeholder="Enter your user name"
+              value
+              readonly
+            />
+          </div>
+          <h2>E-mail</h2>
+          <div class="border">
+            <input
+              id="email"
+              type="text"
+              class="text-input text-input--underbar"
+              placeholder="********"
+              value
+            />
+          </div>
+          <button class="button" v-on:click="save()">Save</button>
         </div>
 
-        <h2>E-mail</h2>
-        <div class="border">
-          <input
-            id="email"
-            type="text"
-            class="text-input text-input--underbar"
-            placeholder="********"
-            value
-          />
-        </div>
-
-        <div>
+        <div v-bind:class="[isAlarmActive ? 'Hide' : 'unHide']" >
           <h1>This is User view Table</h1>
           <b-table
             ref="selectableTable"
@@ -58,14 +81,9 @@
             </b-alert>
           </p>
 
-          <p>
-            Selected Rows:<br />
-            {{ selected }}
-          </p>
         </div>
       </div>
 
-      <button class="button" v-on:click="save()">Save</button>
     </div>
   </div>
 </template>
@@ -76,6 +94,10 @@ import { mapGetters } from "vuex";
 import axios from "axios";
 export default {
   data() {
+     var isAlarmActive = true;
+    var isPersonalActive = true;
+        var isMenuActive = true;
+    var isBackActive = true;
     var isActive = true;
     var defauteValue = [
       {
@@ -92,6 +114,10 @@ export default {
 
     var selected;
     return {
+      isMenuActive,
+      isAlarmActive,
+      isPersonalActive,
+      isBackActive,
       showDelAlert: false,
       boxTwo: "",
       transProps: {
@@ -137,19 +163,37 @@ export default {
 
     let personID = this.$store.getters.UserID;
     if (personID != "default") {
-      axios.get("http://localhost:3000/person/id/" + personID).then((res) => {
-        if (res.data.userName != null) {
-          document.getElementById("username").placeholder = res.data.userName;
-        }
-        if (res.data.email != null) {
-          document.getElementById("email").placeholder = res.data.email;
-        }
-      });
+      axios
+        .get("http://49.235.1.205:3000/person/id/" + personID)
+        .then((res) => {
+          if (res.data.userName != null) {
+            document.getElementById("username").placeholder = res.data.userName;
+          }
+          if (res.data.email != null) {
+            document.getElementById("email").placeholder = res.data.email;
+          }
+        });
     } else {
       this.$router.replace({ name: "Login" });
     }
   },
   methods: {
+      personalShow() {
+      this.isPersonalActive = false;
+      this.isBackActive = false;
+      this.isMenuActive = false;
+    },
+        alarmShow() {
+      this.isAlarmActive = false;
+      this.isBackActive = false;
+      this.isMenuActive = false;
+    },
+        allBack() {
+      this.isPersonalActive = true;
+      this.isAlarmActive = true;
+      this.isBackActive = true;
+      this.isMenuActive = true;
+    },
     showMsgBoxTwo() {
       if (this.selected.length == 0) {
         this.showDelAlert = true;
@@ -313,21 +357,20 @@ export default {
     },
 
     save: async function () {
-      let profile = {};
       let new_email = document.getElementById("email").value;
 
-      let email = document.getElementById("email").placeholder;
+      //  let email = document.getElementById("email").placeholder;
 
-      if (new_email != "" && email != new_email) {
-        profile = { ...profile, email: new_email };
+      if (new_email != "") {
+        axios
+          .patch(
+            "http://49.235.1.205:3000/person/" + this.$store.getters.UserID,
+            { email: new_email }
+          )
+          .then(() => {
+            location.reload();
+          });
       }
-
-      console.log(profile);
-      axios.patch(
-        "http://localhost:3000/person/" + this.$store.getters.UserID,
-        profile
-      );
-      location.reload();
     },
   },
 };
@@ -342,9 +385,35 @@ body {
   padding: 0;
   overflow: auto;
 }
+figure {
+  margin: 1em;
 
-table#table-transition-example .flip-list-move {
-  transition: transform 1s;
+  padding: 0;
+}
+
+img {
+  width: 10em;
+}
+
+.selectCard {
+  display: inline-flex;
+  margin-top: 10em;
+}
+
+.back {
+  display: inline-flex;
+}
+.leftMargin {
+  height: 5em;
+  width: 50em;
+}
+
+.adminManul {
+  display: inline-flex;
+}
+
+.adminVertical {
+  width: 80%;
 }
 
 .Hide {
@@ -375,7 +444,7 @@ table#table-transition-example .flip-list-move {
 }
 .button {
   background: #00cc80;
-  width: calc(100% - 2.5em);
+  width: 15em;
   height: 2.5em;
   line-height: 0;
   display: block;
@@ -393,20 +462,7 @@ table#table-transition-example .flip-list-move {
 }
 
 .text-container {
-  width: 80%;
-}
-
-@media only screen and (min-width: 650px) {
-  table#table-transition-example .flip-list-move {
-    transition: transform 1s;
-  }
-
-  .text-container {
-    margin-left: 25%;
-    width: 50%;
-  }
-  .button {
-    width: calc(100% - 20em);
-  }
+  margin-left: 25%;
+  width: 50%;
 }
 </style>
